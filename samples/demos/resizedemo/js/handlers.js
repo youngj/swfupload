@@ -38,7 +38,7 @@ function fileQueueError(file, errorCode, message) {
 function fileDialogComplete(numFilesSelected, numFilesQueued) {
 	try {
 		if (numFilesQueued > 0 && !uploadInProgress) {
-			ShowPreview(id);
+			ShowPreview(this.getFile(0).ID);
 		}
 	} catch (ex) {
 		this.debug(ex);
@@ -93,7 +93,7 @@ function uploadComplete(file) {
 		if (this.getStats().files_queued > 0) {
 			ShowPreview(this.getFile(0).ID);
 		} else {
-			var progress = new FileProgress(file,  this.customSettings.upload_target);
+			var progress = new FileProgress(file, this.customSettings.upload_target);
 			progress.setComplete();
 			progress.setStatus("All images received.");
 			progress.toggleCancel(false);
@@ -153,7 +153,7 @@ function ShowPreview(id) {
 		preview = new SWFUpload.Preview({
 			flash_url : "../swfupload/preview.swf",
 			preview_placeholder_id : "spanPreview",
-			preview_loaded_handler : function () { PreviewLoadedHandler(id); },
+			preview_loaded_handler : function () { PreviewLoadedHandler.call(this, id); },
 			preview_complete_handler : ShowPreviewComplete,
 			debug : true,
 			width : 50,

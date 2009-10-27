@@ -120,11 +120,21 @@ package {
 		private function LoadImage(swfUploadMovieName:String, file_id:String, width:int, height:int, encoder:int, quality:int):void {
 			// Connect to the SWFUpload movie.  Tell it to send the file and what the server name is
 			var receiver:LocalConnection = new LocalConnection();
-			receiver.client = this;
-			receiver.connect(this.movieName);
+			try {
+				receiver.client = this;
+				receiver.connect(this.movieName);
+			} catch (ex:Error) {
+				this.Debug("Error starting LocalConnection server: " + ex.message);
+				return;
+			}
 			
-			var notify:LocalConnection = new LocalConnection();
-			notify.send(swfUploadMovieName, "RequestImage", this.movieName, file_id, width, height, encoder, quality);
+			try {
+				var notify:LocalConnection = new LocalConnection();
+				notify.send(swfUploadMovieName, "RequestImage", this.movieName, file_id, width, height, encoder, quality);
+			} catch (ex:Error) {
+				this.Debug("Error requesting image from " + swfUploadMovieName + " : " + ex.message);
+				return;
+			}
 		}
 		
 		private var receivingFileID:String = "";
