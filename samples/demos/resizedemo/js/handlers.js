@@ -38,7 +38,7 @@ function fileQueueError(file, errorCode, message) {
 function fileDialogComplete(numFilesSelected, numFilesQueued) {
 	try {
 		if (numFilesQueued > 0 && !uploadInProgress) {
-			ShowPreview(this.getFile(0).ID);
+			ShowPreview(this.getFile(0).id);
 		}
 	} catch (ex) {
 		this.debug(ex);
@@ -91,7 +91,7 @@ function uploadComplete(file) {
 	try {
 		/*  I want the next upload to continue automatically so I'll call startUpload here */
 		if (this.getStats().files_queued > 0) {
-			ShowPreview(this.getFile(0).ID);
+			ShowPreview(this.getFile(0).id);
 		} else {
 			var progress = new FileProgress(file, this.customSettings.upload_target);
 			progress.setComplete();
@@ -161,14 +161,15 @@ function ShowPreview(id) {
 			resize_to_fit : true
 		});
 	} else {
-		PreviewLoadedHandler(id);
+		PreviewLoadedHandler.call(this, id);
 	}
 }
 function PreviewLoadedHandler(id) {
 	this.getPreview(swfu.movieName, id, 50, 50, SWFUpload.RESIZE_ENCODING.JPEG, 100);
 }
 function ShowPreviewComplete() {
-	this.startResizedUpload(this.getFile(0).ID, 100, 100, SWFUpload.RESIZE_ENCODING.JPEG, 100);
+	this.debug("Preview Complete");
+	swfu.startResizedUpload(swfu.getFile(0).id, 100, 100, SWFUpload.RESIZE_ENCODING.JPEG, 100);
 }
 
 

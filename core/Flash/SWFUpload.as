@@ -124,6 +124,7 @@ package {
 		private var buttonStateMouseDown:Boolean;
 		private var buttonStateDisabled:Boolean;
 		
+		private var requestImageLC:LocalConnection;
 		private var usingPreview:Boolean;
 		
 		// Error code "constants"
@@ -404,7 +405,7 @@ package {
 			}
 
 			try {
-				this.usingPreview = Boolean(root.loaderInfo.parameters.usingPreview);
+				this.usingPreview = root.loaderInfo.parameters.usingPreview == "true" ? true : false;
 			} catch (ex:Object) {
 				this.usingPreview = false;
 			}
@@ -1446,16 +1447,23 @@ package {
 				return;
 			}
 			
-			var requestImage:LocalConnection = new LocalConnection();
-			requestImage.client = this;
-			requestImage.connect(this.movieName);
+			this.requestImageLC = new LocalConnection();
+			this.requestImageLC.client = this;
+			try {
+				this.requestImageLC.connect(this.movieName);
+			} catch (ex:Error) {
+				this.Debug(ex.message);
+			}
 		}
 		
 		private var senderConnectionName:String = "";
 		private var senderFileID:String = "";
 		public function RequestImage(connectionName:String, file_id:String, width:int, height:int, encoder:int, quality:int):void {
-			var file:FileItem = FileItem(this.GetFile(file_id));
+			this.Debug("Image Request: " + connectionName + ", File ID: " + file_id);
+			
+			var file:FileItem = this.FindFileInFileIndex(file_id);
 			if (file == null) {
+				this.Debug("Image Request: file not found");
 				return;
 			}
 			
@@ -1466,24 +1474,30 @@ package {
 			resizer.addEventListener(ImageResizerEvent.COMPLETE, this.RequestImageResizeComplete);
 			resizer.ResizeImage();
 		}
+
 		private function RequestImageResizeComplete(e:ImageResizerEvent):void {
-			var sender:LocalConnection = new LocalConnection();
-			sender.send(this.senderConnectionName, "StartImageSend", this.senderFileID);
-			var buffer:ByteArray = new ByteArray();
-			var i:Number = 0;
-			for (i; i < e.data.length; i += 25000) {
-				e.data.readBytes(buffer, i, 25000);
-				sender.send(this.senderConnectionName, "ReceiveImageChunk", this.senderFileID, buffer);
-				buffer = new ByteArray();
+			try {
+				this.Debug("Image Request - Done Resizing");
+
+				var sender:LocalConnection = new LocalConnection();
+				sender.send(this.senderConnectionName, "StartImageSend", this.senderFileID);
+				var buffer:ByteArray = new ByteArray();
+
+				this.Debug("Image Request - Starting send");
+				e.data.position = 0;
+				var bufferSize:int = 25000;
+				while ((bufferSize = Math.min(e.data.bytesAvailable, 25000)) > 0) {
+					buffer.clear();
+					e.data.readBytes(buffer, 0, bufferSize);
+					sender.send(this.senderConnectionName, "ReceiveImageChunk", this.senderFileID, buffer);
+				}
+				
+				this.Debug("Image Request - Done sending");
+				
+				sender.send(this.senderConnectionName, "EndImageSend", this.senderFileID);
+			} catch (ex:Error) {
+				this.Debug(ex.message);
 			}
-			
-			var leftOver:Number = e.data.length - (i - 25000);
-			if (leftOver > 0) {
-				e.data.readBytes(buffer, i, leftOver);
-				sender.send(this.senderConnectionName, "ReceiveImageChunk", this.senderFileID, buffer);
-			}
-			
-			sender.send(this.senderConnectionName, "EndImageSend", this.senderFileID);
 		}
 		
 		/* *************************************************************
@@ -1602,6 +1616,7 @@ package {
 			debug_info += "File Size Limit:        " + this.fileSizeLimit + " bytes\n";
 			debug_info += "File Upload Limit:      " + this.fileUploadLimit + "\n";
 			debug_info += "File Queue Limit:       " + this.fileQueueLimit + "\n";
+			debug_info += "Using Preview:          " + this.usingPreview + "\n";
 			debug_info += "Post Params:\n";
 			for (var key:String in this.uploadPostObject) {
 				if (this.uploadPostObject.hasOwnProperty(key)) {

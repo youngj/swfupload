@@ -148,7 +148,7 @@ SWFUpload.Preview.prototype.getFlashHTML = function () {
 SWFUpload.Preview.prototype.getFlashVars = function () {
 	// Build the parameter string
 	return ["movieName=", encodeURIComponent(this.movieName),
-			"&amp;debugEnabled=", encodeURIComponent(this.settings.debug_enabled)
+			"&amp;debug=", encodeURIComponent(this.settings.debug)
 		].join("");
 };
 
@@ -261,6 +261,7 @@ SWFUpload.Preview.prototype.callFlash = function (functionName, argumentArray) {
 // Public: startUpload starts uploading the first file in the queue unless
 // the optional parameter 'fileID' specifies the ID 
 SWFUpload.Preview.prototype.getPreview = function (swfUploadMovieName, file_id, width, height, encoding, quality) {
+	this.debug("Called getPreview: " + swfUploadMovieName + " " + file_id);
 	this.callFlash("LoadImage", [swfUploadMovieName, file_id, width, height, encoding, quality]);
 };
 
@@ -271,11 +272,13 @@ SWFUpload.Preview.prototype.setDebugEnabled = function (debugEnabled) {
 };
 
 SWFUpload.Preview.prototype.setPreviewDimensionsCallback = function (parameters) {
+	this.debug("Resizing preview");
 	this.setPreviewDimensions(parameters["width"], parameters["height"]);
 };
 
 // Public: setButtonDimensions resizes the Flash Movie
 SWFUpload.Preview.prototype.setPreviewDimensions = function (width, height) {
+	this.debug("Resizing preview to " + width + " by " + height);
 	var movie = this.getMovieElement();
 	if (movie != undefined && this.settings.resize_to_fit) {
 		movie.style.width = width + "px";
