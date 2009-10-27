@@ -28,6 +28,7 @@ package {
 		private var flashReady_Callback:String;
 		private var fileDialogStart_Callback:String;
 		private var resize_Callback:String;
+		private var complete_Callback:String;
 		private var debug_Callback:String;
 		private var cleanUp_Callback:String;
 		
@@ -77,7 +78,8 @@ package {
 			// A developer would have to deliberately remove the default functions,set the variable to null, or remove
 			// it from the init function.
 			this.flashReady_Callback         = "SWFUpload.Preview.instances[\"" + this.movieName + "\"].flashReady";
-			this.resize_Callback              = "SWFUpload.Preview.instances[\"" + this.movieName + "\"].resize";
+			this.resize_Callback             = "SWFUpload.Preview.instances[\"" + this.movieName + "\"].setPreviewDimensions";
+			this.complete_Callback           = "SWFUpload.Preview.instances[\"" + this.movieName + "\"].previewComplete";
 			this.debug_Callback              = "SWFUpload.Preview.instances[\"" + this.movieName + "\"].debug";
 			this.cleanUp_Callback            = "SWFUpload.Preview.instances[\"" + this.movieName + "\"].cleanUp";
 			
@@ -92,12 +94,17 @@ package {
 		private function SetupExternalInterface():void {
 			try {
 				ExternalInterface.addCallback("LoadImage", this.LoadImage);
+				ExternalInterface.addCallback("SetDebugEnabled", this.SetDebugEnabled);
 			} catch (ex:Error) {
 				this.Debug("Callbacks where not set: " + ex.message);
 				return;
 			}
 			
 			ExternalCall.Simple(this.cleanUp_Callback);
+		}
+		
+		private function SetDebugEnabled(debug:Boolean):void {
+			this.debugEnabled = debug;
 		}
 		
 		private function ShowImage():void {
@@ -107,6 +114,7 @@ package {
 		}
 		private function ImageLoaderCompleteHandler(e:Event):void {
 			ExternalCall.Generic(this.resize_Callback, { "width": this.imageLoader.width, "height" : this.imageLoader.height });
+			ExternalCall.Simple(this.complete_Callback);
 		}
 		
 		private function LoadImage(swfUploadMovieName:String, file_id:String, width:int, height:int, encoder:int, quality:int):void {

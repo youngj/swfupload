@@ -406,7 +406,7 @@ package {
 			try {
 				this.usingPreview = Boolean(root.loaderInfo.parameters.usingPreview);
 			} catch (ex:Object) {
-				this.usingPreview = true;	// FIXME -- should be false
+				this.usingPreview = false;
 			}
 			
 			
@@ -1462,16 +1462,24 @@ package {
 			this.senderConnectionName = connectionName;
 			this.senderFileID = file_id;
 			
-			var resizer:ImageResizer = ImageResizer(file, width, height, encoder, quality);
-			resizer.addEventListener(ImageResizerEvent.COMPLETE);
+			var resizer:ImageResizer = new ImageResizer(file, width, height, encoder, quality);
+			resizer.addEventListener(ImageResizerEvent.COMPLETE, this.RequestImageResizeComplete);
 			resizer.ResizeImage();
 		}
 		private function RequestImageResizeComplete(e:ImageResizerEvent):void {
 			var sender:LocalConnection = new LocalConnection();
 			sender.send(this.senderConnectionName, "StartImageSend", this.senderFileID);
-			for (var i:Number = 0; i < e.data.length; i += 25000) {
-				var buffer:ByteArray = new ByteArray();
+			var buffer:ByteArray = new ByteArray();
+			var i:Number = 0;
+			for (i; i < e.data.length; i += 25000) {
 				e.data.readBytes(buffer, i, 25000);
+				sender.send(this.senderConnectionName, "ReceiveImageChunk", this.senderFileID, buffer);
+				buffer = new ByteArray();
+			}
+			
+			var leftOver:Number = e.data.length - (i - 25000);
+			if (leftOver > 0) {
+				e.data.readBytes(buffer, i, leftOver);
 				sender.send(this.senderConnectionName, "ReceiveImageChunk", this.senderFileID, buffer);
 			}
 			
