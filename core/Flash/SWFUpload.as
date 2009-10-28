@@ -468,6 +468,7 @@ package {
 				ExternalInterface.addCallback("SetStats", this.SetStats);
 				ExternalInterface.addCallback("GetFile", this.GetFile);
 				ExternalInterface.addCallback("GetFileByIndex", this.GetFileByIndex);
+				ExternalInterface.addCallback("GetFileByQueueIndex", this.GetFileByQueueIndex);
 				
 				ExternalInterface.addCallback("AddFileParam", this.AddFileParam);
 				ExternalInterface.addCallback("RemoveFileParam", this.RemoveFileParam);
@@ -1004,6 +1005,14 @@ package {
 			}
 		}
 
+		private function GetFileByQueueIndex(index:Number):Object {
+			if (index < 0 || index > this.file_queue.length - 1) {
+				return null;
+			} else {
+				return this.file_queue[index].ToJavaScriptObject();
+			}
+		}
+		
 		private function AddFileParam(file_id:String, name:String, value:String):Boolean {
 			var item:FileItem = this.FindFileInFileIndex(file_id);
 			if (item != null) {
@@ -1458,7 +1467,7 @@ package {
 		
 		private var senderConnectionName:String = "";
 		private var senderFileID:String = "";
-		public function RequestImage(connectionName:String, file_id:String, width:int, height:int, encoder:int, quality:int):void {
+		public function RequestImage(connectionName:String, file_id:String):void {
 			this.Debug("Image Request: " + connectionName + ", File ID: " + file_id);
 			
 			var file:FileItem = this.FindFileInFileIndex(file_id);
@@ -1470,9 +1479,18 @@ package {
 			this.senderConnectionName = connectionName;
 			this.senderFileID = file_id;
 			
-			var resizer:ImageResizer = new ImageResizer(file, width, height, encoder, quality);
-			resizer.addEventListener(ImageResizerEvent.COMPLETE, this.RequestImageResizeComplete);
-			resizer.ResizeImage();
+			//var resizer:ImageResizer = new ImageResizer(file, width, height, encoder, quality);
+			//resizer.addEventListener(ImageResizerEvent.COMPLETE, this.RequestImageResizeComplete);
+			//resizer.ResizeImage();
+
+			file.file_reference.addEventListener(Event.COMPLETE, this.fileDataLoaded);
+			file.file_reference.load();
+			
+		}
+		
+		private function fileDataLoaded(e:Event):void {
+			FileReference(e.target).removeEventListener(Event.COMPLETE, this.fileDataLoaded);
+			this.RequestImageResizeComplete(new ImageResizerEvent(ImageResizerEvent.COMPLETE, FileReference(e.target).data, 0));
 		}
 
 		private function RequestImageResizeComplete(e:ImageResizerEvent):void {
@@ -1483,10 +1501,10 @@ package {
 				sender.send(this.senderConnectionName, "StartImageSend", this.senderFileID);
 				var buffer:ByteArray = new ByteArray();
 
-				this.Debug("Image Request - Starting send");
+				this.Debug("Image Request - Starting send (" + e.data.length + ")");
 				e.data.position = 0;
-				var bufferSize:int = 25000;
-				while ((bufferSize = Math.min(e.data.bytesAvailable, 25000)) > 0) {
+				var bufferSize:int = 40000;
+				while ((bufferSize = Math.min(e.data.bytesAvailable, 40000)) > 0) {
 					buffer.clear();
 					e.data.readBytes(buffer, 0, bufferSize);
 					sender.send(this.senderConnectionName, "ReceiveImageChunk", this.senderFileID, buffer);

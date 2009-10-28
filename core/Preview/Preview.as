@@ -53,10 +53,11 @@ package {
 
 			// Setup the stage
 			this.stage.align = StageAlign.TOP_LEFT;
-			this.stage.scaleMode = StageScaleMode.NO_BORDER;
+			this.stage.scaleMode = StageScaleMode.NO_SCALE;
 			
 			// Setup the image
 			this.imageLoader = new Loader();
+			this.imageLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.ImageLoaderComplete);
 			this.stage.addChild(this.imageLoader);
 
 			
@@ -87,10 +88,12 @@ package {
 			
 			this.SetupExternalInterface();
 			
+			this.Debug("Stage Size:" + this.stage.width + " by " + this.stage.height);
 			this.Debug("Preview Init Complete: " + this.movieName);
 
 			ExternalCall.Simple(this.flashReady_Callback);
 			this.hasCalledFlashReady = true;
+			
 		}
 
 		private function SetupExternalInterface():void {
@@ -112,7 +115,6 @@ package {
 		private function ShowImage():void {
 			try {
 				this.Debug("Loading received image data");
-				this.imageLoader.loadBytes(this.imageData);
 				if (this.receiver != null) {
 					try {
 						this.receiver.close();
@@ -120,18 +122,38 @@ package {
 					this.receiver = null;
 				}
 				this.receivingFileID = "";
-				this.imageData = null;
 
-				ExternalCall.Generic(this.resize_Callback, { "width": this.imageLoader.width, "height" : this.imageLoader.height });
-				ExternalCall.Simple(this.complete_Callback);
+				this.imageLoader.loadBytes(this.imageData);
+				this.imageData = null;
 			} catch (ex:Error) {
 				this.Debug(ex.message);
 			}
 		}
 
+		private function ImageLoaderComplete(e:Event):void {
+			if (this.imageLoader.width > this.imageLoader.height) {
+				this.imageLoader.width = this.maxWidth;
+			} else {
+				this.imageLoader.height = this.maxHeight;
+			}
+			
+			ExternalCall.Simple(this.complete_Callback);
+		}
+		
 		private var receiver:LocalConnection = null;
-		private function LoadImage(swfUploadMovieName:String, file_id:String, width:int, height:int, encoder:int, quality:int):void {
+		private var receivingFileID:String = "";
+		private var imageData:ByteArray;
+		private var maxWidth:Number;
+		private var maxHeight:Number;
+		
+		private function LoadImage(swfUploadMovieName:String, file_id:String, width:Number, height:Number):void {
 			this.Debug("Beginning request of file " + file_id + " from " + swfUploadMovieName);
+			
+			this.maxWidth = width;
+			this.maxHeight = height;
+			
+			this.receivingFileID = "";	// Effectively cancels any previous previews
+			
 			// Connect to the SWFUpload movie.  Tell it to send the file and what the server name is
 			this.receiver = new LocalConnection();
 			this.receiver.client = this;
@@ -144,29 +166,14 @@ package {
 			
 			try {
 				var notify:LocalConnection = new LocalConnection();
-				notify.addEventListener(AsyncErrorEvent.ASYNC_ERROR, this.GenericEventHandler);
-				notify.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.GenericEventHandler);
-				notify.addEventListener(StatusEvent.STATUS, this.GenericEventHandler);
 				this.Debug("RequestImage");
-				notify.send(swfUploadMovieName, "RequestImage", this.movieName, file_id, width, height, encoder, quality);
+				notify.send(swfUploadMovieName, "RequestImage", this.movieName, file_id);
 			} catch (ex:Error) {
 				this.Debug("Error requesting image from " + swfUploadMovieName + " : " + ex.message);
 				return;
 			}
 		}
 		
-		private function GenericEventHandler(e:Event):void {
-			this.Debug(e.type);
-			switch (e.type) 
-			{
-				case "status":
-					this.Debug("Level: " + StatusEvent(e).level);
-					break;
-			}
-		}
-		
-		private var receivingFileID:String = "";
-		private var imageData:ByteArray;
 		public function StartImageSend(file_id:String):void {
 			if (this.receivingFileID === "") {
 				this.Debug("Starting Data receiving for " + file_id);
@@ -178,7 +185,6 @@ package {
 		}
 		public function ReceiveImageChunk(file_id:String, data:ByteArray):void {
 			if (file_id === this.receivingFileID) {
-				this.Debug("Received " + data.length + " for " + file_id);
 				this.imageData.writeBytes(data);
 			} else {
 				this.Debug("Attempted send for unmatched file id " + file_id);

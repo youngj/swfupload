@@ -576,6 +576,17 @@ SWFUpload.prototype.getFile = function (fileID) {
 	}
 };
 
+// Public: getFileFromQueue retrieves a File object by ID or Index.  If the file is
+// not found then 'null' is returned.
+SWFUpload.prototype.getQueueFile = function (fileID) {
+	if (typeof(fileID) === "number") {
+		return this.callFlash("GetFileByQueueIndex", [fileID]);
+	} else {
+		return this.callFlash("GetFile", [fileID]);
+	}
+};
+
+
 // Public: addFileParam sets a name/value pair that will be posted with the
 // file specified by the Files ID.  If the name already exists then the
 // exiting value will be overwritten.

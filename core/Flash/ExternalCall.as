@@ -13,10 +13,6 @@ package {
 		public static function Simple(callback:String):void {
 			ExternalInterface.call(callback);
 		}
-		public static function Generic(callback:String, parameters:Object):void {
-			ExternalInterface.call(callback, parameters);
-		}
-		
 		
 		public static function FileQueued(callback:String, file_object:Object):void {
 			ExternalInterface.call(callback, EscapeMessage(file_object));

@@ -6,8 +6,8 @@
     <movie input="" />
     <movie path="preview.swf" />
     <movie fps="1" />
-    <movie width="1" />
-    <movie height="1" />
+    <movie width="100" />
+    <movie height="100" />
     <movie version="10" />
     <movie background="#FFFFFF" />
   </output>
@@ -32,6 +32,8 @@
     <option useResourceBundleMetadata="True" />
     <option warnings="True" />
     <option verboseStackTraces="False" />
+    <option linkReport="" />
+    <option loadExterns="" />
     <option additional="" />
     <option customSDK="" />
   </build>
