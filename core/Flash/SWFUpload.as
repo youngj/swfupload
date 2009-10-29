@@ -854,7 +854,7 @@ package {
 					// Remove the file from the queue
 					file_item = FileItem(this.file_queue[file_index]);
 					file_item.file_status = FileItem.FILE_STATUS_CANCELLED;
-					this.file_queue[file_index] = null;
+					this.file_queue.splice(file_index, 1);
 					this.queued_uploads--;
 					this.upload_cancelled++;
 					
@@ -1288,7 +1288,7 @@ package {
 				if (file_index >= 0) {
 					// Set the file as the current upload and remove it from the queue
 					this.current_file_item = FileItem(this.file_queue[file_index]);
-					this.file_queue[file_index] = null;
+					this.file_queue.splice([file_index], 1);
 				} else {
 					this.Debug("Event: uploadError : File ID not found in queue: " + file_id);
 					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_SPECIFIED_FILE_ID_NOT_FOUND, null, "File ID not found in the queue.");
