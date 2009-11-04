@@ -1,11 +1,13 @@
  * SWFUpload Core, January 2009, www.swfupload.org, swfupload.googlecode.com
 
  * --------- Version 2.5.0-----------
- * + Added Client Side thumbnail generation and uploading
- * + Added startThumbnailUpload()
- * + Added thumbnail_width and thumbnail_height settings
- * + Added setThumbnailDimensions(w, h) function
- * + Added button_action type of START_THUMBNAIL_UPLOAD
+ * + Added Client Side thumbnail generation and uploading and related settings
+ * + Added Client Side thumbnail preview plugin
+ * = Fixed double encoding of settings issue
+ * = Improved movieElement grabbing
+ * - Removed settings clone as it is unreliable
+ * = Fixed speed plugin so it checks for a file before extending it
+ * + Progress event manually fired for 100% if not fired by Flash
 
  
  * --------- Version 2.2.1-----------

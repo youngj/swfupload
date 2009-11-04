@@ -77,7 +77,7 @@
 </style>
 
 <body>
-	<h1>SWFUpload v2.2.1 Documentation</h1>
+	<h1>SWFUpload v2.5.0 Documentation</h1>
 	<h2>TOC</h2>
 	<ol>
 		<li><a href="#swfupload">SWFUpload</a></li>
@@ -94,9 +94,11 @@
 						<li><a href="#queue_error">QUEUE_ERROR</a></li>
 						<li><a href="#upload_error">UPLOAD_ERROR</a></li>
 						<li><a href="#file_status">FILE_STATUS</a></li>
+						<li><a href="#upload_type">UPLOAD_TYPE</a></li>
 						<li><a href="#button_action">BUTTON_ACTION</a></li>
 						<li><a href="#button_cursor">CURSOR</a></li>
 						<li><a href="#button_window_mode">BUTTON_WINDOW_MODE</a></li>
+						<li><a href="#resize_encoding">RESIZE_ENCODING</a></li>
 					</ol>
 				</li>
 				<li><a href="#properties">Properties</a>
@@ -115,12 +117,14 @@
 						<li><a href="#selectFile">selectFile</a></li>
 						<li><a href="#selectFiles">selectFiles</a></li>
 						<li><a href="#startUpload">startUpload</a></li>
+						<li><a href="#startResizedUpload">startResizedUpload (added in v2.5.0)</a></li>
 						<li><a href="#cancelUpload">cancelUpload</a></li>
 						<li><a href="#stopUpload">stopUpload</a></li>
 						<li><a href="#requeueUpload">requeueUpload</a></li>
 						<li><a href="#getStats">getStats</a></li>
 						<li><a href="#setStats">setStats</a></li>
 						<li><a href="#getFile">getFile</a></li>
+						<li><a href="#getQueueFile">getQueueFile (added in v2.5.0)</a></li>
 						<li><a href="#addPostParam">addPostParam</a></li>
 						<li><a href="#removePostParam">removePostParam</a></li>
 						<li><a href="#addFileParam">addFileParam</a></li>
@@ -187,6 +191,7 @@
 			<li>The ability to select multiple files in the file browser dialog.</li>
 			<li>AJAX-style uploading without a page refresh.</li>
 			<li>Upload progress events.</li>
+			<li>Client-side image resizing</li>
 			<li>Namespaced classes compatible with other JavaScript libraries (i.e., jQuery, Prototype, etc.).</li>
 			<li>Flash 9 and Flash 10 support. (Flash 8 support dropped in version 2.2.0)</li>
 		</ul>
@@ -412,6 +417,7 @@ var swfu = new SWFUpload({
 		<li>FILE_VALIDATION_FAILED - False was returned from the uploadStart event</li>
 		<li>FILE_CANCELLED - cancelUpload was called</li>
 		<li>UPLOAD_STOPPED - stopUpload was called.</li>
+		<li>RESIZE_ERROR - An error occurred resizing an image</li>
 	</ul>	
 	
 	<h4><a name="file_status"></a>SWFUpload.FILE_STATUS</h4>
@@ -425,7 +431,14 @@ var swfu = new SWFUpload({
 		<li>CANCELLED - indicates that this file was cancelled by a call to cancelUpload.</li>
 	</ul>
 
-	
+	<h4><a name="upload_type"></a>SWFUpload.UPLOAD_TYPE</h4>
+	<p>SWFUpload.UPLOAD_TYPE is a simple object that contains Upload Type constants.  It can be used to check the upload type property on the File object.</p>
+
+	<ul style="padding-left: 15px;">
+		<li>NORMAL - a normal SWFUpload upload</li>
+		<li>RESIZED - a resized image upload. The data was not sent as an HTTP upload but as a simple post.</li>
+	</ul>
+
 	<h4><a name="button_action"></a>SWFUpload.BUTTON_ACTION</h4>
 	<p>SWFUpload.BUTTON_ACTION is a simple object that contains button action code constants.  It is used with the button_action setting to set the behavior of the Flash based file dialog button.</p>
 	
@@ -454,6 +467,14 @@ var swfu = new SWFUpload({
 		<li>TRANSPARENT the button background is rendered transparent allowing html elements under the button to show through.</li>
 	</ul>
 	
+	<h4><a name="resize_encoding"></a>SWFUpload.RESIZE_ENCODING</h4>
+	<p>SWFUpload.RESIZE_ENCODING is a simple object that contains resize encoding type constants.  It to indicate the format for encoding resized images.</p>
+	
+	<ul style="padding-left: 15px;">
+		<li>JPEG - The JPEG encoding format</li>
+		<li>PNG - The PNG encoding format</li>
+	</ul>
+		
 	<h3><a name="properties"></a>Properties</h3>
 	<p>
 		The following list of properties is intended for your use as described below. Using other properties or
@@ -539,6 +560,17 @@ function uploadSuccess(file, serverData, receivedResponse) {
 	
 	<p>Calling startUpload begins the Upload Event Chain.</p>
 	
+	<h4><a name="startResizedUpload"></a>void startResizedUpload(<span class="parameter">file_id</span>, <span class="parameter">width</span>, <span class="parameter">height</span>, <span class="parameter">encoding</span>, <span class="parameter">quality</span>)</h4>
+	<p>startResizedUpload causes the file specified by the file_id parameter to start the upload process.  SWFUpload attempts to resize the file (assuming it is an image format supported by Flash).  If the image cannot be resized an uploadError occurs.</p>
+	
+	<p>The width and height parameters specify the maximum size the resized image can be in one dimension.  The other dimension is scaled to maintain the image aspect ratio.</p>
+	
+	<p>The encoding parameter should be a value from the SWFUpload.RESIZE_ENCODING constants.</p>
+	
+	<p>The quality parameter is used only for JPEG encoding. I can be value from 0 to 100 and is clamped to a valid value if it is out of range.</p>
+	
+	<p>Calling startResizedUpload begins the Upload Event Chain.</p>
+	
 	<h4><a name="cancelUpload"></a>void cancelUpload(<span class="parameter">file_id</span>, <span class="parameter">trigger_error_event</span>)</h4>
 	
 	<p>cancelUpload cancels the file specified by the file_id parameter.  The file is then removed from the queue.</p>
@@ -570,6 +602,11 @@ function uploadSuccess(file, serverData, receivedResponse) {
 	<p>getFile is used to retrieve a File Object from the queue.  The file retrieved by passing in a file id (the id property from a file object) or a file index (the index property from a file object).</p>
 	<p>When getting a file by file_id only files in the queue are available.  If the file is not found null is returned.</p>
 	<p>When getting a file by index all queued (or files that generated a queue error) are available.  If the index is out of range then null is returned</p>
+	
+	<h4><a name="getQueueFile"></a>object getQueueFile(<span class="parameter">file_id</span>|<span class="parameter">index</span>)</h4>
+	<p>getFile is used to retrieve a File Object from the upload queue.  The file retrieved by passing in a file id (the id property from a file object) or a queue index (the position of the file in the queue). The index starts at zero.</p>
+	<p>When getting a file by file_id only files currently queued for upload are available.  If the file is not found null is returned.</p>
+	<p>When getting a file by index only files currently queued for upload ar available. For example: getQueueFile(0) returns the file at front of the queue. This would be the next file uploaded when startUpload is called.</p>
 	
 	<h4><a name="addPostParam"></a>void addPostParam(<span class="parameter">name</span>, <span class="parameter">value</span>)</h4>
 	<p>The addPostParam function adds a name/value pair that will be sent in the POST for all files uploaded.</p>
