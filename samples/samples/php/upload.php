@@ -28,7 +28,7 @@ Notes:
 	 access restrictions, etc.  This, however, is outside the scope of this script.
 	
 	SWFUpload sends each file as a separate POST rather than several files in a single post. This is a better
-	 method in my opinions since it better handles file size limits, e.g., if post_max_size is 100 MB and I post two 60 MB files then
+	 method in my opinion since it better handles file size limits, e.g., if post_max_size is 100 MB and I post two 60 MB files then
 	 the post would fail (2x60MB = 120MB). In SWFupload each 60 MB is posted as separate post and we stay within the limits. This
 	 also simplifies the upload script since we only have to handle a single file.
 	
@@ -37,7 +37,7 @@ Notes:
 	
 */
 
-// Code for Session Cookie workaround
+// Code for to workaround the Flash Player Session Cookie bug
 	if (isset($_POST["PHPSESSID"])) {
 		session_id($_POST["PHPSESSID"]);
 	} else if (isset($_GET["PHPSESSID"])) {
@@ -69,7 +69,7 @@ Notes:
 	$file_name = "";
 	$file_extension = "";
 	$uploadErrors = array(
-        0=>"There is no error, the file uploaded with success",
+        0=>"There is no error, the file uploaded successfully",
         1=>"The uploaded file exceeds the upload_max_filesize directive in php.ini",
         2=>"The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form",
         3=>"The uploaded file was only partially uploaded",
@@ -144,7 +144,7 @@ Notes:
 		 which describes how a PHP script can be embedded within a GIF image file.
 		
 		Therefore, no sample code will be provided here.  Research the issue, decide how much security is
-		 needed, and implement a solution that meets the needs.
+		 needed, and implement a solution that meets the need.
 	*/
 
 

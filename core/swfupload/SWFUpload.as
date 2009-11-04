@@ -48,7 +48,7 @@ package {
 		}
 		
 
-		private const build_number:String = "SWFUPLOAD 2.5.0 Beta 1 - r.2";
+		private const build_number:String = "2.5.0 2009-11-04 Alpha";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
