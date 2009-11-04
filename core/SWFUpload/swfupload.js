@@ -50,7 +50,7 @@ SWFUpload.prototype.initSWFUpload = function (userSettings) {
 /* *************** */
 SWFUpload.instances = {};
 SWFUpload.movieCount = 0;
-SWFUpload.version = "2.2.1 2009-03-30";
+SWFUpload.version = "2.5.0 2009-11-04 Alpha";
 SWFUpload.QUEUE_ERROR = {
 	QUEUE_LIMIT_EXCEEDED            : -100,
 	FILE_EXCEEDS_SIZE_LIMIT         : -110,
