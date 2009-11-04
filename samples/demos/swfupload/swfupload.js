@@ -52,67 +52,67 @@ SWFUpload.instances = {};
 SWFUpload.movieCount = 0;
 SWFUpload.version = "2.2.1 2009-03-30";
 SWFUpload.QUEUE_ERROR = {
-	QUEUE_LIMIT_EXCEEDED	  		: -100,
-	FILE_EXCEEDS_SIZE_LIMIT  		: -110,
-	ZERO_BYTE_FILE			  		: -120,
-	INVALID_FILETYPE		  		: -130
+	QUEUE_LIMIT_EXCEEDED            : -100,
+	FILE_EXCEEDS_SIZE_LIMIT         : -110,
+	ZERO_BYTE_FILE                  : -120,
+	INVALID_FILETYPE                : -130
 };
 SWFUpload.UPLOAD_ERROR = {
-	HTTP_ERROR				  		: -200,
-	MISSING_UPLOAD_URL	      		: -210,
-	IO_ERROR				  		: -220,
-	SECURITY_ERROR			  		: -230,
-	UPLOAD_LIMIT_EXCEEDED	  		: -240,
-	UPLOAD_FAILED			  		: -250,
-	SPECIFIED_FILE_ID_NOT_FOUND		: -260,
-	FILE_VALIDATION_FAILED	  		: -270,
-	FILE_CANCELLED			  		: -280,
-	UPLOAD_STOPPED					: -290,
-	RESIZE_ERROR					: -300
+	HTTP_ERROR                      : -200,
+	MISSING_UPLOAD_URL              : -210,
+	IO_ERROR                        : -220,
+	SECURITY_ERROR                  : -230,
+	UPLOAD_LIMIT_EXCEEDED           : -240,
+	UPLOAD_FAILED                   : -250,
+	SPECIFIED_FILE_ID_NOT_FOUND     : -260,
+	FILE_VALIDATION_FAILED          : -270,
+	FILE_CANCELLED                  : -280,
+	UPLOAD_STOPPED                  : -290,
+	RESIZE_ERROR                    : -300
 };
 SWFUpload.FILE_STATUS = {
-	QUEUED		 : -1,
-	IN_PROGRESS	 : -2,
-	ERROR		 : -3,
-	COMPLETE	 : -4,
-	CANCELLED	 : -5
+	QUEUED       : -1,
+	IN_PROGRESS  : -2,
+	ERROR        : -3,
+	COMPLETE     : -4,
+	CANCELLED    : -5
 };
 SWFUpload.UPLOAD_TYPE = {
-	NORMAL		 : -1,
-	RESIZED		 : -2,
+	NORMAL       : -1,
+	RESIZED      : -2
 };
 
 SWFUpload.BUTTON_ACTION = {
-	SELECT_FILE				: -100,
-	SELECT_FILES			: -110,
-	START_UPLOAD			: -120,
-	JAVASCRIPT				: -130
+	SELECT_FILE             : -100,
+	SELECT_FILES            : -110,
+	START_UPLOAD            : -120,
+	JAVASCRIPT              : -130
 };
 SWFUpload.CURSOR = {
 	ARROW : -1,
-	HAND : -2
+	HAND  : -2
 };
 SWFUpload.WINDOW_MODE = {
-	WINDOW : "window",
-	TRANSPARENT : "transparent",
-	OPAQUE : "opaque"
+	WINDOW       : "window",
+	TRANSPARENT  : "transparent",
+	OPAQUE       : "opaque"
 };
 
 SWFUpload.RESIZE_ENCODING = {
-	JPEG : -1,
-	PNG : -2
+	JPEG  : -1,
+	PNG   : -2
 };
 
 // Private: takes a URL, determines if it is relative and converts to an absolute URL
 // using the current site. Only processes the URL if it can, otherwise returns the URL untouched
 SWFUpload.completeURL = function (url) {
 	try {
-		var path = "";
+		var path = "", indexSlash = -1;
 		if (typeof(url) !== "string" || url.match(/^https?:\/\//i) || url.match(/^\//) || url === "") {
 			return url;
 		}
 		
-		var indexSlash = window.location.pathname.lastIndexOf("/");
+		indexSlash = window.location.pathname.lastIndexOf("/");
 		if (indexSlash <= 0) {
 			path = "/";
 		} else {
@@ -136,17 +136,7 @@ SWFUpload.prototype.initSettings = function (userSettings) {
 	this.ensureDefault = function (settingName, defaultValue) {
 		var setting = userSettings[settingName];
 		if (setting != undefined) {
-			if (typeof(setting) === "object" && !(setting instanceof Array)) {
-				var clone = {};
-				for (var key in setting) {
-					if (setting.hasOwnProperty(key)) {
-						clone[key] = setting[key];
-					}
-				}
-				this.settings[settingName] = clone;
-			} else {
-				this.settings[settingName] = setting;
-			}
+			this.settings[settingName] = setting;
 		} else {
 			this.settings[settingName] = defaultValue;
 		}
@@ -230,7 +220,7 @@ SWFUpload.prototype.initSettings = function (userSettings) {
 
 // Private: loadFlash replaces the button_placeholder element with the flash movie.
 SWFUpload.prototype.loadFlash = function () {
-	var targetElement, tempParent;
+	var targetElement, tempParent, wrapperType;
 
 	// Make sure an element with the ID we are going to use doesn't already exist
 	if (document.getElementById(this.movieName) !== null) {
@@ -244,11 +234,21 @@ SWFUpload.prototype.loadFlash = function () {
 		throw "Could not find the placeholder element: " + this.settings.button_placeholder_id;
 	}
 
-	var wrapperType = (targetElement.currentStyle && targetElement.currentStyle["display"] || window.getComputedStyle && document.defaultView.getComputedStyle(targetElement, null).getPropertyValue("display")) !== "block" ? "span" : "div";
+	wrapperType = (targetElement.currentStyle && targetElement.currentStyle["display"] || window.getComputedStyle && document.defaultView.getComputedStyle(targetElement, null).getPropertyValue("display")) !== "block" ? "span" : "div";
 	
 	// Append the container and load the flash
 	tempParent = document.createElement(wrapperType);
 	tempParent.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
+	
+	// Experiment -- try to get the movie element immediately
+	var els = tempParent.getElementsByTagName("object");	// FIXME - JSLint if this works
+	if (!else || els.length > 1 || els.length === 0) {
+		// Oh crap...bail
+	} else if (els.length === 1) {
+		this.movieElement = els[0];
+		this.debug("Got the movie. WOOT!");
+	}
+	
 	targetElement.parentNode.replaceChild(tempParent.firstChild, targetElement);
 
 	// Fix IE Flash/Form bug
@@ -275,8 +275,10 @@ SWFUpload.prototype.getFlashHTML = function () {
 // to flash in the flashvars param.
 SWFUpload.prototype.getFlashVars = function () {
 	// Build a string from the post param object
-	var paramString = this.buildParamString();
-	var httpSuccessString = this.settings.http_success.join(",");
+	var httpSuccessString, paramString;
+	
+	paramString = this.buildParamString();
+	httpSuccessString = this.settings.http_success.join(",");
 	
 	// Build the parameter string
 	return ["movieName=", encodeURIComponent(this.movieName),
@@ -306,7 +308,7 @@ SWFUpload.prototype.getFlashVars = function () {
 		].join("");
 };
 
-// Public: getMovieElement retrieves the DOM reference to the Flash element added by SWFUpload
+// Public: get retrieves the DOM reference to the Flash element added by SWFUpload
 // The element is cached after the first lookup
 SWFUpload.prototype.getMovieElement = function () {
 	if (this.movieElement == undefined) {
@@ -323,11 +325,12 @@ SWFUpload.prototype.getMovieElement = function () {
 // Private: buildParamString takes the name/value pairs in the post_params setting object
 // and joins them up in to a string formatted "name=value&amp;name=value"
 SWFUpload.prototype.buildParamString = function () {
-	var postParams = this.settings.post_params; 
-	var paramStringPairs = [];
+	var name, postParams, paramStringPairs = [];
+	
+	postParams = this.settings.post_params; 
 
 	if (typeof(postParams) === "object") {
-		for (var name in postParams) {
+		for (name in postParams) {
 			if (postParams.hasOwnProperty(name)) {
 				paramStringPairs.push(encodeURIComponent(name.toString()) + "=" + encodeURIComponent(postParams[name].toString()));
 			}
@@ -342,6 +345,8 @@ SWFUpload.prototype.buildParamString = function () {
 // Returns true if everything was destroyed. Returns a false if a failure occurs leaving SWFUpload in an inconsistant state.
 // Credits: Major improvements provided by steffen
 SWFUpload.prototype.destroy = function () {
+	var movieElement;
+	
 	try {
 		// Make sure Flash is done before we try to remove it
 		this.cancelUpload(null, false);
@@ -349,7 +354,7 @@ SWFUpload.prototype.destroy = function () {
 		// Stop the external interface check from running
 		this.callFlash("StopExternalInterfaceCheck");
 		
-		var movieElement = this.cleanUp();
+		movieElement = this.cleanUp();
 
 		// Remove the SWFUpload DOM nodes
 		if (movieElement) {
@@ -463,17 +468,21 @@ SWFUpload.prototype.getSetting = function (name) {
 // Calls are made with a setTimeout for some functions to work around
 // bugs in the ExternalInterface library.
 SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
-	argumentArray = argumentArray || [];
+	var movieElement, returnValue, returnString;
 	
-	var movieElement = this.getMovieElement();
-	var returnValue, returnString;
+	argumentArray = argumentArray || [];
+	movieElement = this.getMovieElement();
 
 	// Flash's method if calling ExternalInterface methods (code adapted from MooTools).
 	try {
-		returnString = movieElement.CallFunction('<invoke name="' + functionName + '" returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
-		returnValue = eval(returnString);
+		if (movieElement && movieElement.CallFunction) {
+			returnString = movieElement.CallFunction('<invoke name="' + functionName + '" returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
+			returnValue = eval(returnString);
+		} else {
+			this.debug("Can't call flash because the movie wasn't found.");
+		}
 	} catch (ex) {
-		throw "Call to " + functionName + " failed";
+		this.debug("Exception calling flash: " + ex.message);
 	}
 	
 	// Unescape file post param values
@@ -762,6 +771,7 @@ SWFUpload.prototype.setButtonCursor = function (cursor) {
 
 SWFUpload.prototype.queueEvent = function (handlerName, argumentArray) {
 	// Warning: Don't call this.debug inside here or you'll create an infinite loop
+	var self = this;
 	
 	if (argumentArray == undefined) {
 		argumentArray = [];
@@ -769,7 +779,6 @@ SWFUpload.prototype.queueEvent = function (handlerName, argumentArray) {
 		argumentArray = [argumentArray];
 	}
 	
-	var self = this;
 	if (typeof this.settings[handlerName] === "function") {
 		// Queue the event
 		this.eventQueue.push(function () {
@@ -801,15 +810,12 @@ SWFUpload.prototype.executeNextEvent = function () {
 // properties that contain characters that are not valid for JavaScript identifiers. To work around this
 // the Flash Component escapes the parameter names and we must unescape again before passing them along.
 SWFUpload.prototype.unescapeFilePostParams = function (file) {
-	var reg = /[$]([0-9a-f]{4})/i;
-	var unescapedPost = {};
-	var uk;
+	var reg = /[$]([0-9a-f]{4})/i, unescapedPost = {}, uk, k, match;
 
 	if (file != undefined) {
-		for (var k in file.post) {
+		for (k in file.post) {
 			if (file.post.hasOwnProperty(k)) {
 				uk = k;
-				var match;
 				while ((match = reg.exec(uk)) !== null) {
 					uk = uk.replace(match[0], String.fromCharCode(parseInt("0x" + match[1], 16)));
 				}
@@ -851,13 +857,13 @@ SWFUpload.prototype.flashReady = function () {
 // Private: removes Flash added fuctions to the DOM node to prevent memory leaks in IE.
 // This function is called by Flash each time the ExternalInterface functions are created.
 SWFUpload.prototype.cleanUp = function () {
-	var movieElement = this.getMovieElement();
+	var key, movieElement = this.getMovieElement();
 	
 	// Pro-actively unhook all the Flash functions
 	try {
 		if (movieElement && typeof(movieElement.CallFunction) === "unknown") { // We only want to do this in IE
 			this.debug("Removing Flash functions hooks (this should only run in IE and should prevent memory leaks)");
-			for (var key in movieElement) {
+			for (key in movieElement) {
 				try {
 					if (typeof(movieElement[key]) === "function") {
 						movieElement[key] = null;
@@ -986,12 +992,14 @@ SWFUpload.prototype.debug = function (message) {
 // call the debug() function.  When overriding the function your own function should
 // check to see if the debug setting is true before outputting debug information.
 SWFUpload.prototype.debugMessage = function (message) {
+	var exceptionMessage, exceptionValues, key;
+
 	if (this.settings.debug) {
-		var exceptionMessage, exceptionValues = [];
+		exceptionValues = [];
 
 		// Check for an exception object and print it nicely
 		if (typeof message === "object" && typeof message.name === "string" && typeof message.message === "string") {
-			for (var key in message) {
+			for (key in message) {
 				if (message.hasOwnProperty(key)) {
 					exceptionValues.push(key + ": " + message[key]);
 				}

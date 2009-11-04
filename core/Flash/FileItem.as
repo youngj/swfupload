@@ -12,6 +12,7 @@ package {
 		public var id:String;
 		public var index:Number = -1;
 		public var file_status:int = 0;
+		public var finalUploadProgress:Boolean = false;
 		public var upload_type:int = 0;
 		private var js_object:Object;
 		

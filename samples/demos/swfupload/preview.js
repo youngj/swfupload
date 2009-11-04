@@ -32,6 +32,7 @@ SWFUpload.Preview.prototype.init = function (userSettings) {
 		this.eventQueue = [];
 		this.movieName = "Preview_" + SWFUpload.Preview.movieCount++;
 		this.movieElement = null;
+		this.swfUpload = null;
 
 
 		// Setup global control tracking
@@ -194,6 +195,7 @@ SWFUpload.Preview.prototype.destroy = function () {
 		this.customSettings = null;
 		this.eventQueue = null;
 		this.movieName = null;
+		this.swfUpload = null;
 		
 		
 		return true;
@@ -262,6 +264,7 @@ SWFUpload.Preview.prototype.callFlash = function (functionName, argumentArray) {
 // the optional parameter 'fileID' specifies the ID 
 SWFUpload.Preview.prototype.getPreview = function (swfUploadMovieName, file_id, width, height) {
 	this.debug("Called getPreview: " + swfUploadMovieName + " " + file_id);
+	this.swfUpload = SWFUpload.instances[swfUploadMovieName];
 	this.setPreviewDimensions(width, height);
 	this.callFlash("LoadImage", [swfUploadMovieName, file_id, width, height]);
 };

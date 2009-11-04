@@ -252,7 +252,7 @@ package {
 			this.stage.addChild(this.buttonCursorSprite);
 			
 			// Get the movie name
-			this.movieName = root.loaderInfo.parameters.movieName;
+			this.movieName = decodeURIComponent(root.loaderInfo.parameters.movieName);
 
 			// **Configure the callbacks**
 			// The JavaScript tracks all the instances of SWFUpload on a page.  We can access the instance
@@ -280,11 +280,11 @@ package {
 			this.buttonAction_Callback       = "SWFUpload.instances[\"" + this.movieName + "\"].buttonAction";
 			
 			// Get the Flash Vars
-			this.uploadURL = root.loaderInfo.parameters.uploadURL;
-			this.filePostName = root.loaderInfo.parameters.filePostName;
-			this.fileTypes = root.loaderInfo.parameters.fileTypes;
-			this.fileTypesDescription = root.loaderInfo.parameters.fileTypesDescription + " (" + this.fileTypes + ")";
-			this.loadPostParams(root.loaderInfo.parameters.params);
+			this.uploadURL = decodeURIComponent(root.loaderInfo.parameters.uploadURL);
+			this.filePostName = decodeURIComponent(root.loaderInfo.parameters.filePostName);
+			this.fileTypes = decodeURIComponent(root.loaderInfo.parameters.fileTypes);
+			this.fileTypesDescription = decodeURIComponent(root.loaderInfo.parameters.fileTypesDescription) + " (" + this.fileTypes + ")";
+			this.loadPostParams(decodeURIComponent(root.loaderInfo.parameters.params));
 
 			
 			if (!this.filePostName) {
@@ -300,27 +300,27 @@ package {
 			this.LoadFileExensions(this.fileTypes);
 			
 			try {
-				this.debugEnabled = root.loaderInfo.parameters.debugEnabled == "true" ? true : false;
+				this.debugEnabled = decodeURIComponent(root.loaderInfo.parameters.debugEnabled) == "true" ? true : false;
 			} catch (ex:Object) {
 				this.debugEnabled = false;
 			}
 
 			try {
-				this.SetFileSizeLimit(String(root.loaderInfo.parameters.fileSizeLimit));
+				this.SetFileSizeLimit(String(decodeURIComponent(root.loaderInfo.parameters.fileSizeLimit)));
 			} catch (ex:Object) {
 				this.fileSizeLimit = 0;
 			}
 			
 
 			try {
-				this.fileUploadLimit = Number(root.loaderInfo.parameters.fileUploadLimit);
+				this.fileUploadLimit = Number(decodeURIComponent(root.loaderInfo.parameters.fileUploadLimit));
 				if (this.fileUploadLimit < 0) this.fileUploadLimit = 0;
 			} catch (ex:Object) {
 				this.fileUploadLimit = 0;
 			}
 
 			try {
-				this.fileQueueLimit = Number(root.loaderInfo.parameters.fileQueueLimit);
+				this.fileQueueLimit = Number(decodeURIComponent(root.loaderInfo.parameters.fileQueueLimit));
 				if (this.fileQueueLimit < 0) this.fileQueueLimit = 0;
 			} catch (ex:Object) {
 				this.fileQueueLimit = 0;
@@ -332,80 +332,80 @@ package {
 			if (this.fileQueueLimit == 0 && this.fileUploadLimit != 0) this.fileQueueLimit = this.fileUploadLimit;
 
 			try {
-				this.useQueryString = root.loaderInfo.parameters.useQueryString == "true" ? true : false;
+				this.useQueryString = decodeURIComponent(root.loaderInfo.parameters.useQueryString) == "true" ? true : false;
 			} catch (ex:Object) {
 				this.useQueryString = false;
 			}
 			
 			try {
-				this.requeueOnError = root.loaderInfo.parameters.requeueOnError == "true" ? true : false;
+				this.requeueOnError = decodeURIComponent(root.loaderInfo.parameters.requeueOnError) == "true" ? true : false;
 			} catch (ex:Object) {
 				this.requeueOnError = false;
 			}
 
 			try {
-				this.SetHTTPSuccess(String(root.loaderInfo.parameters.httpSuccess));
+				this.SetHTTPSuccess(String(decodeURIComponent(root.loaderInfo.parameters.httpSuccess)));
 			} catch (ex:Object) {
 				this.SetHTTPSuccess([]);
 			}
 
 			try {
-				this.SetAssumeSuccessTimeout(Number(root.loaderInfo.parameters.assumeSuccessTimeout));
+				this.SetAssumeSuccessTimeout(Number(decodeURIComponent(root.loaderInfo.parameters.assumeSuccessTimeout)));
 			} catch (ex:Object) {
 				this.SetAssumeSuccessTimeout(0);
 			}
 
 			
 			try {
-				this.SetButtonDimensions(Number(root.loaderInfo.parameters.buttonWidth), Number(root.loaderInfo.parameters.buttonHeight));
+				this.SetButtonDimensions(Number(decodeURIComponent(root.loaderInfo.parameters.buttonWidth)), Number(decodeURIComponent(root.loaderInfo.parameters.buttonHeight)));
 			} catch (ex:Object) {
 				this.SetButtonDimensions(0, 0);
 			}
 
 			try {
-				this.SetButtonImageURL(String(root.loaderInfo.parameters.buttonImageURL));
+				this.SetButtonImageURL(String(decodeURIComponent(root.loaderInfo.parameters.buttonImageURL)));
 			} catch (ex:Object) {
 				this.SetButtonImageURL("");
 			}
 			
 			try {
-				this.SetButtonText(String(root.loaderInfo.parameters.buttonText));
+				this.SetButtonText(String(decodeURIComponent(root.loaderInfo.parameters.buttonText)));
 			} catch (ex:Object) {
 				this.SetButtonText("");
 			}
 			
 			try {
-				this.SetButtonTextPadding(Number(root.loaderInfo.parameters.buttonTextLeftPadding), Number(root.loaderInfo.parameters.buttonTextTopPadding));
+				this.SetButtonTextPadding(Number(decodeURIComponent(root.loaderInfo.parameters.buttonTextLeftPadding)), Number(decodeURIComponent(root.loaderInfo.parameters.buttonTextTopPadding)));
 			} catch (ex:Object) {
 				this.SetButtonTextPadding(0, 0);
 			}
 
 			try {
-				this.SetButtonTextStyle(String(root.loaderInfo.parameters.buttonTextStyle));
+				this.SetButtonTextStyle(String(decodeURIComponent(root.loaderInfo.parameters.buttonTextStyle)));
 			} catch (ex:Object) {
 				this.SetButtonTextStyle("");
 			}
 
 			try {
-				this.SetButtonAction(Number(root.loaderInfo.parameters.buttonAction));
+				this.SetButtonAction(Number(decodeURIComponent(root.loaderInfo.parameters.buttonAction)));
 			} catch (ex:Object) {
 				this.SetButtonAction(this.BUTTON_ACTION_SELECT_FILES);
 			}
 			
 			try {
-				this.SetButtonDisabled(root.loaderInfo.parameters.buttonDisabled == "true" ? true : false);
+				this.SetButtonDisabled(decodeURIComponent(root.loaderInfo.parameters.buttonDisabled) == "true" ? true : false);
 			} catch (ex:Object) {
 				this.SetButtonDisabled(Boolean(false));
 			}
 			
 			try {
-				this.SetButtonCursor(Number(root.loaderInfo.parameters.buttonCursor));
+				this.SetButtonCursor(Number(decodeURIComponent(root.loaderInfo.parameters.buttonCursor)));
 			} catch (ex:Object) {
 				this.SetButtonCursor(this.BUTTON_CURSOR_ARROW);
 			}
 
 			try {
-				this.usingPreview = root.loaderInfo.parameters.usingPreview == "true" ? true : false;
+				this.usingPreview = decodeURIComponent(root.loaderInfo.parameters.usingPreview) == "true" ? true : false;
 			} catch (ex:Object) {
 				this.usingPreview = false;
 			}
@@ -516,6 +516,7 @@ package {
 
 		private function Open_Handler(event:Event):void {
 			this.Debug("Event: uploadProgress (OPEN): File ID: " + this.current_file_item.id);
+			this.current_file_item.finalUploadProgress = false;
 			ExternalCall.UploadProgress(this.uploadProgress_Callback, this.current_file_item.ToJavaScriptObject(), 0, this.current_file_item.file_reference.size);
 		}
 		
@@ -528,15 +529,18 @@ package {
 			// Because Flash never fires a complete event if the server doesn't respond after 30 seconds or on Macs if there
 			// is no content in the response we'll set a timer and assume that the upload is successful after the defined amount of
 			// time.  If the timeout is zero then we won't use the timer.
-			if (bytesLoaded === bytesTotal && bytesTotal > 0 && this.assumeSuccessTimeout > 0) {
-				if (this.assumeSuccessTimer !== null) {
-					this.assumeSuccessTimer.stop();
-					this.assumeSuccessTimer = null;
+			if (bytesLoaded === bytesTotal) {
+				this.current_file_item.finalUploadProgress = true;
+				if (bytesTotal > 0 && this.assumeSuccessTimeout > 0) {
+					if (this.assumeSuccessTimer !== null) {
+						this.assumeSuccessTimer.stop();
+						this.assumeSuccessTimer = null;
+					}
+					
+					this.assumeSuccessTimer = new Timer(this.assumeSuccessTimeout * 1000, 1);
+					this.assumeSuccessTimer.addEventListener(TimerEvent.TIMER_COMPLETE, AssumeSuccessTimer_Handler);
+					this.assumeSuccessTimer.start();
 				}
-				
-				this.assumeSuccessTimer = new Timer(this.assumeSuccessTimeout * 1000, 1);
-				this.assumeSuccessTimer.addEventListener(TimerEvent.TIMER_COMPLETE, AssumeSuccessTimer_Handler);
-				this.assumeSuccessTimer.start();
 			}
 			
 			this.Debug("Event: uploadProgress: File ID: " + this.current_file_item.id + ". Bytes: " + bytesLoaded + ". Total: " + bytesTotal);
@@ -589,6 +593,12 @@ package {
 				this.assumeSuccessTimer = null;
 			}
 
+			// If the 100% upload progress hasn't been called then call it now
+			if (!file.finalUploadProgress) {
+				this.Debug("Event: uploadProgress (simulated 100%): File ID: " + file.id + ". Bytes: " + file.file_reference.size + ". Total: " + file.file_reference.size);
+				ExternalCall.UploadProgress(this.uploadProgress_Callback, file.ToJavaScriptObject(), file.file_reference.size, file.file_reference.size);
+			}
+			
 			this.successful_uploads++;
 			file.file_status = FileItem.FILE_STATUS_SUCCESS;
 
