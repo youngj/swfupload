@@ -38,8 +38,6 @@ function fileQueueError(file, errorCode, message) {
 function fileDialogComplete(numFilesSelected, numFilesQueued) {
 	try {
 		if (numFilesQueued > 0 && !uploadInProgress) {
-			console.log(this);
-			console.log(this.getQueueFile(0));
 			ShowPreview(this.getQueueFile(0).id);
 		}
 	} catch (ex) {

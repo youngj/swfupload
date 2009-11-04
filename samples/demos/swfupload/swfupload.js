@@ -242,7 +242,7 @@ SWFUpload.prototype.loadFlash = function () {
 	
 	// Experiment -- try to get the movie element immediately
 	var els = tempParent.getElementsByTagName("object");	// FIXME - JSLint if this works
-	if (!else || els.length > 1 || els.length === 0) {
+	if (!els || els.length > 1 || els.length === 0) {
 		// Oh crap...bail
 	} else if (els.length === 1) {
 		this.movieElement = els[0];

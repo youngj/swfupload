@@ -65,17 +65,7 @@ SWFUpload.Preview.prototype.initSettings = function (userSettings) {
 	this.ensureDefault = function (settingName, defaultValue) {
 		var setting = userSettings[settingName];
 		if (setting != undefined) {
-			if (typeof(setting) === "object" && !(setting instanceof Array)) {
-				var clone = {};
-				for (var key in setting) {
-					if (setting.hasOwnProperty(key)) {
-						clone[key] = setting[key];
-					}
-				}
-				this.settings[settingName] = clone;
-			} else {
-				this.settings[settingName] = setting;
-			}
+			this.settings[settingName] = setting;
 		} else {
 			this.settings[settingName] = defaultValue;
 		}
