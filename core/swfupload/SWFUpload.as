@@ -1475,8 +1475,6 @@ package {
 			}
 		}
 		
-		private var senderConnectionName:String = "";
-		private var senderFileID:String = "";
 		public function RequestImage(connectionName:String, file_id:String):void {
 			this.Debug("Image Request: " + connectionName + ", File ID: " + file_id);
 			
@@ -1486,43 +1484,43 @@ package {
 				return;
 			}
 			
-			this.senderConnectionName = connectionName;
-			this.senderFileID = file_id;
+			var self:SWFUpload = this;
 			
-			//var resizer:ImageResizer = new ImageResizer(file, width, height, encoder, quality);
-			//resizer.addEventListener(ImageResizerEvent.COMPLETE, this.RequestImageResizeComplete);
-			//resizer.ResizeImage();
-
-			file.file_reference.addEventListener(Event.COMPLETE, this.fileDataLoaded);
+			file.file_reference.addEventListener(
+				Event.COMPLETE,
+				function (e:Event):void 
+				{
+					self.Debug("Image Request (" + connectionName + ":" + file_id + ") - Done Loading Image Data");
+					var fileRef:FileReference = FileReference(e.target);
+					fileRef.removeEventListener(Event.COMPLETE, arguments.callee);
+					self.SendRequestedImage(connectionName, file_id, fileRef.data);
+				}
+			);
+			
 			file.file_reference.load();
 			
 		}
 		
-		private function fileDataLoaded(e:Event):void {
-			FileReference(e.target).removeEventListener(Event.COMPLETE, this.fileDataLoaded);
-			this.RequestImageResizeComplete(new ImageResizerEvent(ImageResizerEvent.COMPLETE, FileReference(e.target).data, 0));
-		}
-
-		private function RequestImageResizeComplete(e:ImageResizerEvent):void {
+		private function SendRequestedImage(connectionName:String, file_id:String, data:ByteArray):void {
 			try {
-				this.Debug("Image Request - Done Resizing");
 
 				var sender:LocalConnection = new LocalConnection();
-				sender.send(this.senderConnectionName, "StartImageSend", this.senderFileID);
+				sender.send(connectionName, "StartImageSend", file_id);
 				var buffer:ByteArray = new ByteArray();
 
-				this.Debug("Image Request - Starting send (" + e.data.length + ")");
-				e.data.position = 0;
+				this.Debug("Image Request (" + connectionName + ":" + file_id + ") - Starting send (" + data.length + ")");
+
+				data.position = 0;
 				var bufferSize:int = 40000;
-				while ((bufferSize = Math.min(e.data.bytesAvailable, 40000)) > 0) {
+				while ((bufferSize = Math.min(data.bytesAvailable, 40000)) > 0) {
 					buffer.clear();
-					e.data.readBytes(buffer, 0, bufferSize);
-					sender.send(this.senderConnectionName, "ReceiveImageChunk", this.senderFileID, buffer);
+					data.readBytes(buffer, 0, bufferSize);
+					sender.send(connectionName, "ReceiveImageChunk", file_id, buffer);
 				}
 				
-				this.Debug("Image Request - Done sending");
-				
-				sender.send(this.senderConnectionName, "EndImageSend", this.senderFileID);
+				sender.send(connectionName, "EndImageSend", file_id);
+
+				this.Debug("Image Request (" + connectionName + ":" + file_id + ") - Done sending");
 			} catch (ex:Error) {
 				this.Debug(ex.message);
 			}

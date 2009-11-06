@@ -117,6 +117,7 @@ package
 				resizedBmp = new BitmapData(this.newWidth, this.newHeight, true, 0x000000);
 				resizedBmp.draw(bmp, matrix, null, null, null, true);
 				
+				bmp.dispose();
 				
 				if (this.encoder == ImageResizer.PNGENCODE) {
 					var pngEncoder:PNGEncoder = new PNGEncoder(PNGEncoder.TYPE_SUBFILTER, 1);

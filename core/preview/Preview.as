@@ -148,6 +148,7 @@ package {
 			
 			// Get the image data
 			var bmp:BitmapData = Bitmap(loader.content).bitmapData;
+			loader.unload();
 
 			// Blur it a bit if it is sizing smaller
 			if (this.maxWidth < loader.width || newHeight <= loader.height) {
@@ -168,7 +169,8 @@ package {
 			var resizedBmpData:BitmapData = new BitmapData(newWidth, newHeight, true, 0x000000);
 			resizedBmpData.draw(bmp, matrix, null, null, null, true);
 
-			
+			bmp.dispose();
+
 			if (this.resizedBmp !== null) {
 				this.stage.removeChild(this.resizedBmp);
 				this.resizedBmp = null;
@@ -248,7 +250,7 @@ package {
 				if (this.debugEnabled) {
 					var lines:Array = msg.split("\n");
 					for (var i:Number=0; i < lines.length; i++) {
-						lines[i] = "PREVIEW DEBUG: " + lines[i];
+						lines[i] = "PREVIEW DEBUG (" + this.movieName + "): " + lines[i];
 					}
 						ExternalCall.Debug(this.debug_Callback, lines.join("\n"));
 				}
