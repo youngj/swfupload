@@ -2,6 +2,7 @@ package {
 	import flash.display.Bitmap;
 	import flash.display.Sprite;
 	import flash.display.Loader;
+	import flash.display.Stage;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.AsyncErrorEvent;
@@ -27,7 +28,7 @@ package {
 		}
 		
 
-		private const build_number:String = "Preview 0.1";
+		private const build_number:String = "Preview 0.2";
 		private var movieName:String = "";
 		private var debugEnabled:Boolean = false;
 		
@@ -41,7 +42,7 @@ package {
 		private var debug_Callback:String;
 		private var cleanUp_Callback:String;
 		
-		private var resizedBmp:Bitmap = null;
+		private var imageLoader:Loader = null;
 		
 		
 		public function Preview() {
@@ -60,6 +61,11 @@ package {
 			// Setup the stage
 			this.stage.align = StageAlign.TOP_LEFT;
 			this.stage.scaleMode = StageScaleMode.NO_SCALE;
+			this.stage.addEventListener(Event.RESIZE, function anonResize(e:Event):void {
+				// Had to do a closure because (unlike the other events) 'this' in the resize
+				// event handler didn't reference the Preview object
+				self.HandleResize(e);
+			});
 			
 			// Get the movie name
 			try {
@@ -96,6 +102,19 @@ package {
 			
 		}
 
+		private function HandleResize(e:Event):void {
+			var stageRatio:Number = this.stage.stageWidth / this.stage.stageHeight;
+			var imgRatio:Number = this.imageLoader.width / this.imageLoader.height;
+
+			if (stageRatio > imgRatio) {
+				this.imageLoader.height = this.stage.stageHeight;
+				this.imageLoader.scaleX = this.imageLoader.scaleY;
+			} else {
+				this.imageLoader.width = this.stage.stageWidth;
+				this.imageLoader.scaleY = this.imageLoader.scaleX;
+			}
+		}
+	
 		private function SetupExternalInterface():void {
 			try {
 				ExternalInterface.addCallback("LoadImage", this.LoadImage);
@@ -123,8 +142,12 @@ package {
 				}
 				this.receivingFileID = "";
 
-
-				var imageLoader:Loader = new Loader();
+				if (this.imageLoader != null) {
+					this.imageLoader.unload();
+					this.imageLoader = null;
+				}
+				
+				this.imageLoader = new Loader();
 				imageLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.ImageLoaderComplete);
 				
 				imageLoader.loadBytes(this.imageData);
@@ -137,46 +160,11 @@ package {
 		private function ImageLoaderComplete(e:Event):void {
 			e.target.removeEventListener(Event.COMPLETE, this.ImageLoaderComplete);
 			var loader:Loader = Loader(e.target.loader);
-
+			Bitmap(loader.content).smoothing = true;
 			this.Debug("Image size: " + loader.width + " by " + loader.height);
-			var targetRatio:Number = this.maxWidth / this.maxHeight;
-			var imgRatio:Number = loader.width / loader.height;
-			var newHeight:Number = (targetRatio > imgRatio) ? this.maxHeight : Math.min(this.maxWidth / imgRatio, this.maxHeight);
-			var newWidth:Number = (targetRatio > imgRatio) ? Math.min(imgRatio * this.maxHeight, this.maxWidth) : this.maxWidth;
 			
-			var resizedBmp:BitmapData = null;
-			
-			// Get the image data
-			var bmp:BitmapData = Bitmap(loader.content).bitmapData;
-			loader.unload();
-
-			// Blur it a bit if it is sizing smaller
-			if (this.maxWidth < loader.width || newHeight <= loader.height) {
-				// Apply the blur filter that helps clean up the resized image result
-				var blurMultiplier:Number = 1.15; // 1.25;
-				var blurXValue:Number = Math.max(1, loader.width / newWidth) * blurMultiplier;
-				var blurYValue:Number = Math.max(1, loader.height / newHeight) * blurMultiplier;
-				
-				var blurFilter:BlurFilter = new BlurFilter(blurXValue, blurYValue, int(BitmapFilterQuality.LOW));
-				bmp.applyFilter(bmp, new Rectangle(0, 0, bmp.width, bmp.height), new Point(0, 0), blurFilter);
-			}
-
-			// Apply the resizing
-			var matrix:Matrix = new Matrix();
-			matrix.identity();
-			matrix.createBox(newWidth / bmp.width, newHeight / bmp.height);
-
-			var resizedBmpData:BitmapData = new BitmapData(newWidth, newHeight, true, 0x000000);
-			resizedBmpData.draw(bmp, matrix, null, null, null, true);
-
-			bmp.dispose();
-
-			if (this.resizedBmp !== null) {
-				this.stage.removeChild(this.resizedBmp);
-				this.resizedBmp = null;
-			}
-			this.resizedBmp = new Bitmap(resizedBmpData);
-			this.stage.addChild(this.resizedBmp);
+			this.stage.addChild(loader);
+			this.HandleResize(null);
 			
 			ExternalCall.Simple(this.complete_Callback);
 		}

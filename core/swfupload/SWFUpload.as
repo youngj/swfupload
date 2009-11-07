@@ -173,6 +173,7 @@ package {
 				return;
 			}
 
+			var self:SWFUpload = this;
 			Security.allowDomain("*");	// Allow uploading to any domain
 			
 			// Keep Flash Player busy so it doesn't show the "flash script is running slowly" error
@@ -185,7 +186,10 @@ package {
 
 
 			this.stage.align = StageAlign.TOP_LEFT;
-			this.stage.scaleMode = StageScaleMode.NO_SCALE;			
+			this.stage.scaleMode = StageScaleMode.NO_SCALE;
+			this.stage.addEventListener(Event.RESIZE, function (e:Event):void {
+				self.HandleResize(e);
+			});
 
 			// Setup the button and text label
 			this.buttonLoader = new Loader();
@@ -194,8 +198,6 @@ package {
 			this.buttonLoader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, doNothing );
 			this.stage.addChild(this.buttonLoader);
 
-			var self:SWFUpload = this;
-			
 			this.stage.addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
 				self.UpdateButtonState();
 				self.ButtonClickHandler(event);
@@ -430,6 +432,12 @@ package {
 			this.restoreExtIntTimer.start();
 		}
 
+		private function HandleResize(e:Event):void {
+			// FIXME -- resize the button image and text to fit the width dimension
+			// This will only be coded for browser zoom. 
+			// Check http://www.bytearray.org/?p=118 for Scale9 image support
+		}
+		
 		// Used to periodically check that the External Interface functions are still working
 		private function CheckExternalInterface():void {
 			if (!ExternalCall.Bool(this.testExternalInterface_Callback)) {
