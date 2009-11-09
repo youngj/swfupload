@@ -97,13 +97,16 @@ package
 				
 				// Get the image data
 				var bmp:BitmapData = Bitmap(loader.content).bitmapData;
+				
+				loader.unload();
+				loader = null;
 
 				// Blur it a bit if it is sizing smaller
-				if (this.newWidth < loader.width || this.newHeight <= loader.height) {
+				if (this.newWidth < bmp.width || this.newHeight <= bmp.height) {
 					// Apply the blur filter that helps clean up the resized image result
 					var blurMultiplier:Number = 1.15; // 1.25;
-					var blurXValue:Number = Math.max(1, loader.width / this.newWidth) * blurMultiplier;
-					var blurYValue:Number = Math.max(1, loader.height / this.newHeight) * blurMultiplier;
+					var blurXValue:Number = Math.max(1, bmp.width / this.newWidth) * blurMultiplier;
+					var blurYValue:Number = Math.max(1, bmp.height / this.newHeight) * blurMultiplier;
 					
 					var blurFilter:BlurFilter = new BlurFilter(blurXValue, blurYValue, int(BitmapFilterQuality.LOW));
 					bmp.applyFilter(bmp, new Rectangle(0, 0, bmp.width, bmp.height), new Point(0, 0), blurFilter);

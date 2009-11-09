@@ -89,14 +89,9 @@
 		 */
 		public function dispose(): void
 		{
-			clearInterval(this.asyncWriteTimeoutId);
-			this.removeListener();
-			this.cancel();
-
-			_loader = null;
-			_boundary = null;
-			_fileData = null;
-			_data = null;
+			try {
+				this.cancel();
+			} catch (ex:Error) {}
 		}
 
 		/**
@@ -330,7 +325,10 @@
 		}
 		
 		private function destroy():void {
-			this.removeListener();
+			try {
+				this.removeListener();
+			} catch (ex:Error) {}
+
 			this._loader = null;
 			this._request = null;
 			this._boundary = null;
@@ -341,7 +339,10 @@
 			this._data = null;
 			this._httpStatus = undefined;
 		
-			clearInterval(this.asyncWriteTimeoutId);
+			try {
+				clearInterval(this.asyncWriteTimeoutId);
+			} catch (ex:Error) { }
+			
 			this.asyncWriteTimeoutId = undefined;
 		}
 	

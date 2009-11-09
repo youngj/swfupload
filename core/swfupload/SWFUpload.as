@@ -1361,6 +1361,8 @@ package {
 		}
 		
 		private function PrepareResizedImageCompleteHandler(event:ImageResizerEvent):void {
+			event.target.removeEventListener(ImageResizerEvent.COMPLETE, this.PrepareResizedImageCompleteHandler);
+			event.target.removeEventListener(ErrorEvent.ERROR, this.PrepareResizedImageErrorHandler);
 			this.Debug("PrepareResizedImageCompleteHandler(): Finished resizing. Initializing MultipartURLLoader.");
 			
 			if (this.current_file_item != null) {
@@ -1370,6 +1372,9 @@ package {
 			}
 		}		
 		private function PrepareResizedImageErrorHandler(event:ErrorEvent):void {
+			event.target.removeEventListener(ImageResizerEvent.COMPLETE, this.PrepareResizedImageCompleteHandler);
+			event.target.removeEventListener(ErrorEvent.ERROR, this.PrepareResizedImageErrorHandler);
+
 			this.Debug("PrepareResizedImageErrorHandler(): Error resizing image: " + event.text);
 			this.CancelUpload(this.current_file_item.id, false);
 			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_RESIZE, this.current_file_item.ToJavaScriptObject(), "Error generating resized image. " + event.text);
@@ -1433,6 +1438,10 @@ package {
 
 				// Re-queue the FileItem
 				this.current_file_item.file_status = FileItem.FILE_STATUS_QUEUED;
+				if (this.current_file_item.resized_uploader != null) {
+					this.current_file_item.resized_uploader.dispose();
+					this.current_file_item.resized_uploader = null;
+				}
 				js_object = this.current_file_item.ToJavaScriptObject();
 				this.file_queue.unshift(this.current_file_item);
 				this.current_file_item = null;
@@ -1450,6 +1459,10 @@ package {
 			var jsFileObj:Object = this.current_file_item.ToJavaScriptObject();
 			
 			this.removeEventListeners(this.current_file_item);
+			if (this.current_file_item.resized_uploader != null) {
+				this.current_file_item.resized_uploader.dispose();
+				this.current_file_item.resized_uploader = null;
+			}
 
 			if (!eligible_for_requeue || this.requeueOnError == false) {
 				//this.current_file_item.file_reference = null;
