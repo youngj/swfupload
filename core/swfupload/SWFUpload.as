@@ -70,6 +70,7 @@ package {
 		private var serverDataTimer:Timer = null;
 		private var assumeSuccessTimer:Timer = null;
 		
+		private var sizeTimer:Timer;
 		private var restoreExtIntTimer:Timer;
 		private var hasCalledFlashReady:Boolean = false;
 		
@@ -112,8 +113,8 @@ package {
 		private var buttonTextField:TextField;
 		private var buttonCursorSprite:Sprite;
 		private var buttonImageURL:String;
-		private var buttonWidth:Number;
-		private var buttonHeight:Number;
+		//private var buttonWidth:Number;
+		//private var buttonHeight:Number;
 		private var buttonText:String;
 		private var buttonTextStyle:String;
 		private var buttonTextTopPadding:Number;
@@ -188,7 +189,7 @@ package {
 			this.stage.align = StageAlign.TOP_LEFT;
 			this.stage.scaleMode = StageScaleMode.NO_SCALE;
 			this.stage.addEventListener(Event.RESIZE, function (e:Event):void {
-				self.HandleResize(e);
+				self.HandleStageResize(e);
 			});
 
 			// Setup the button and text label
@@ -196,6 +197,7 @@ package {
 			var doNothing:Function = function ():void { };
 			this.buttonLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, doNothing );
 			this.buttonLoader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, doNothing );
+			this.buttonLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.ButtonImageLoaded );
 			this.stage.addChild(this.buttonLoader);
 
 			this.stage.addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
@@ -357,13 +359,13 @@ package {
 				this.SetAssumeSuccessTimeout(0);
 			}
 
-			
+			/*
 			try {
 				this.SetButtonDimensions(Number(decodeURIComponent(root.loaderInfo.parameters.buttonWidth)), Number(decodeURIComponent(root.loaderInfo.parameters.buttonHeight)));
 			} catch (ex:Object) {
 				this.SetButtonDimensions(0, 0);
 			}
-
+			*/
 			try {
 				this.SetButtonImageURL(String(decodeURIComponent(root.loaderInfo.parameters.buttonImageURL)));
 			} catch (ex:Object) {
@@ -412,7 +414,6 @@ package {
 				this.usingPreview = false;
 			}
 			
-			
 			this.SetupExternalInterface();
 			
 			this.SetupPreview();
@@ -426,16 +427,32 @@ package {
 			}
 			
 			// Start periodically checking the external interface
-			var oSelf:SWFUpload = this;
 			this.restoreExtIntTimer = new Timer(1000, 0);
-			this.restoreExtIntTimer.addEventListener(TimerEvent.TIMER, function ():void { oSelf.CheckExternalInterface();} );
+			this.restoreExtIntTimer.addEventListener(TimerEvent.TIMER, function ():void { self.CheckExternalInterface();} );
 			this.restoreExtIntTimer.start();
+			
 		}
 
-		private function HandleResize(e:Event):void {
-			// FIXME -- resize the button image and text to fit the width dimension
-			// This will only be coded for browser zoom. 
-			// Check http://www.bytearray.org/?p=118 for Scale9 image support
+		private function HandleStageResize(e:Event):void {
+			try {
+				if (this.stage.stageWidth > 0 || this.stage.stageHeight > 0) {
+					var buttonHeight:Number = this.buttonLoader.contentLoaderInfo.height / 4;
+
+					// Scale the button cursor
+					this.buttonCursorSprite.width = this.stage.stageWidth;
+					this.buttonCursorSprite.height = this.stage.stageHeight;
+					
+					// scale the button
+					this.buttonLoader.height = this.stage.stageHeight * 4;
+					this.buttonLoader.scaleX = this.buttonLoader.scaleY;
+					
+					// scale the text area (it doesn't resize but it still needs to fit)
+					this.buttonTextField.width = this.stage.stageWidth;
+					this.buttonTextField.height = this.stage.stageHeight;
+					
+					this.Debug("Stage:" + this.stage.stageWidth + " by " + this.stage.stageHeight);
+				}
+			} catch (ex:Error) {}
 		}
 		
 		// Used to periodically check that the External Interface functions are still working
@@ -495,7 +512,7 @@ package {
 				ExternalInterface.addCallback("SetDebugEnabled", this.SetDebugEnabled);
 
 				ExternalInterface.addCallback("SetButtonImageURL", this.SetButtonImageURL);
-				ExternalInterface.addCallback("SetButtonDimensions", this.SetButtonDimensions);
+				//ExternalInterface.addCallback("SetButtonDimensions", this.SetButtonDimensions);
 				ExternalInterface.addCallback("SetButtonText", this.SetButtonText);
 				ExternalInterface.addCallback("SetButtonTextPadding", this.SetButtonTextPadding);
 				ExternalInterface.addCallback("SetButtonTextStyle", this.SetButtonTextStyle);
@@ -1183,6 +1200,25 @@ package {
 			}
 		}
 		
+		private function ButtonImageLoaded(e:Event):void {
+			var self:SWFUpload = this;
+			this.Debug("Button Image Loaded");
+			this.HandleStageResize(null);
+
+			this.sizeTimer = new Timer(10, 0);
+			this.sizeTimer.addEventListener(TimerEvent.TIMER, function ():void {
+				this.Debug("Stage:" + this.stage.stageWidth + " by " + this.stage.stageHeight);
+				if (self.stage.stageWidth > 0 || self.stage.stageHeight > 0) {
+					this.removeEventListener(TimerEvent.TIMER, arguments.callee);
+					this.stop();
+					self.HandleStageResize(null);
+					self.sizeTimer = null;
+				}
+			} );
+			this.sizeTimer.start();
+		}
+
+		
 		private function ButtonClickHandler(e:MouseEvent):void {
 			if (!this.buttonStateDisabled) {
 				if (this.buttonAction === this.BUTTON_ACTION_SELECT_FILE) {
@@ -1208,35 +1244,24 @@ package {
 			this.buttonLoader.y = yOffset;
 			
 			if (this.buttonStateDisabled) {
-				this.buttonLoader.y = this.buttonHeight * -3 + yOffset;
+				this.buttonLoader.y = (this.buttonLoader.height / 4) * -3 + yOffset;
 			}
 			else if (this.buttonStateMouseDown) {
-				this.buttonLoader.y = this.buttonHeight * -2 + yOffset;
+				this.buttonLoader.y = (this.buttonLoader.height / 4) * -2 + yOffset;
 			}
 			else if (this.buttonStateOver) {
-				this.buttonLoader.y = this.buttonHeight * -1 + yOffset;
+				this.buttonLoader.y = (this.buttonLoader.height / 4) * -1 + yOffset;
 			}
 			else {
 				this.buttonLoader.y = -yOffset;
 			}
 		};
 
-		private function SetButtonDimensions(width:Number = -1, height:Number = -1):void {
-			if (width >= 0) {
-				this.buttonWidth = width;
-			}
-			if (height >= 0) {
-				this.buttonHeight = height;
-			}
-			
-			this.buttonTextField.width = this.buttonWidth;
-			this.buttonTextField.height = this.buttonHeight;
-			this.buttonCursorSprite.width = this.buttonWidth;
-			this.buttonCursorSprite.height = this.buttonHeight;
-			
+/*		private function SetButtonDimensions(width:Number = -1, height:Number = -1):void {
+			this.HandleStageResize(null);
 			this.UpdateButtonState();
 		}
-		
+*/		
 		private function SetButtonText(button_text:String):void {
 			this.buttonText = button_text;
 			
@@ -1411,12 +1436,13 @@ package {
 						
 						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_MISSING_UPLOAD_URL, js_object, "Upload URL string is empty.");
 					} else {
-						this.Debug("ReturnUploadStart(): File accepted by startUpload event and readied for upload.  Starting upload to " + request.url + " for File ID: " + this.current_file_item.id);
 						this.current_file_item.file_status = FileItem.FILE_STATUS_IN_PROGRESS;
 						
 						if (this.current_file_item.upload_type === FileItem.UPLOAD_TYPE_NORMAL) {
+							this.Debug("ReturnUploadStart(): File accepted by startUpload event and readied for standard upload.  Starting upload to " + request.url + " for File ID: " + this.current_file_item.id);
 							this.current_file_item.file_reference.upload(request, this.filePostName, false);
 						} else {
+							this.Debug("ReturnUploadStart(): File accepted by startUpload event and readied for resized upload.  Starting upload to " + request.url + " for File ID: " + this.current_file_item.id);
 							this.current_file_item.resized_uploader.upload(request, this.filePostName);
 						}
 					}
@@ -1484,6 +1510,7 @@ package {
 		private function SetupPreview():void
 		{
 			if (!this.usingPreview) {
+				this.Debug("Not using Preview");
 				return;
 			}
 			
@@ -1494,6 +1521,8 @@ package {
 			} catch (ex:Error) {
 				this.Debug(ex.message);
 			}
+			
+			this.Debug("Preview set up");
 		}
 		
 		public function RequestImage(connectionName:String, file_id:String):void {

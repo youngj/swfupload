@@ -172,14 +172,9 @@ package {
 		private var receiver:LocalConnection = null;
 		private var receivingFileID:String = "";
 		private var imageData:ByteArray;
-		private var maxWidth:Number;
-		private var maxHeight:Number;
 		
-		private function LoadImage(swfUploadMovieName:String, file_id:String, width:Number, height:Number):void {
+		private function LoadImage(swfUploadMovieName:String, file_id:String):void {
 			this.Debug("Beginning request of file " + file_id + " from " + swfUploadMovieName);
-			
-			this.maxWidth = width;
-			this.maxHeight = height;
 			
 			this.receivingFileID = "";	// Effectively cancels any previous previews
 			

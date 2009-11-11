@@ -475,14 +475,14 @@ SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
 
 	// Flash's method if calling ExternalInterface methods (code adapted from MooTools).
 	try {
-		if (movieElement && movieElement.CallFunction) {
+		if (movieElement != undefined) {
 			returnString = movieElement.CallFunction('<invoke name="' + functionName + '" returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
 			returnValue = eval(returnString);
 		} else {
 			this.debug("Can't call flash because the movie wasn't found.");
 		}
 	} catch (ex) {
-		this.debug("Exception calling flash: " + ex.message);
+		this.debug("Exception calling flash function '" + functionName + "': " + ex.message);
 	}
 	
 	// Unescape file post param values

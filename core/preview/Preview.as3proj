@@ -67,7 +67,11 @@
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>
-    <!-- example: <hidden path="..." /> -->
+    <hidden path="preview.swf" />
+    <hidden path="..\swfupload\swfupload.swf" />
+    <hidden path="..\swfupload\SWFUpload v2.as3proj" />
+    <hidden path="..\swfupload\deploy.bat" />
+    <hidden path="deploy.bat" />
   </hiddenPaths>
   <!-- Executed before build -->
   <preBuildCommand />

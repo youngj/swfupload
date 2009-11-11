@@ -256,7 +256,7 @@ SWFUpload.Preview.prototype.getPreview = function (swfUploadMovieName, file_id, 
 	this.debug("Called getPreview: " + swfUploadMovieName + " " + file_id);
 	this.swfUpload = SWFUpload.instances[swfUploadMovieName];
 	this.setPreviewDimensions(width, height);
-	this.callFlash("LoadImage", [swfUploadMovieName, file_id, width, height]);
+	this.callFlash("LoadImage", [swfUploadMovieName, file_id]);
 };
 
 // Public: setDebugEnabled changes the debug_enabled setting
