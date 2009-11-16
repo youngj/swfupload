@@ -14,7 +14,6 @@ package {
 	import flash.net.FileReferenceList;
 	import flash.net.FileReference;
 	import flash.net.FileFilter;
-	import flash.net.LocalConnection;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
@@ -93,6 +92,8 @@ package {
 		private var cleanUp_Callback:String;
 		private var buttonAction_Callback:String;
 		
+		private var sendImage_Callback:String;
+		
 		// Values passed in from the HTML
 		private var movieName:String;
 		private var uploadURL:String;
@@ -124,9 +125,6 @@ package {
 		private var buttonStateOver:Boolean;
 		private var buttonStateMouseDown:Boolean;
 		private var buttonStateDisabled:Boolean;
-		
-		private var requestImageLC:LocalConnection;
-		private var usingPreview:Boolean;
 		
 		// Error code "constants"
 		// Size check constants
@@ -283,6 +281,8 @@ package {
 			this.cleanUp_Callback            = "SWFUpload.instances[\"" + this.movieName + "\"].cleanUp";
 			this.buttonAction_Callback       = "SWFUpload.instances[\"" + this.movieName + "\"].buttonAction";
 			
+			this.sendImage_Callback          = "SWFUpload.instances[\"" + this.movieName + "\"].sendImage";
+
 			// Get the Flash Vars
 			this.uploadURL = decodeURIComponent(root.loaderInfo.parameters.uploadURL);
 			this.filePostName = decodeURIComponent(root.loaderInfo.parameters.filePostName);
@@ -408,15 +408,7 @@ package {
 				this.SetButtonCursor(this.BUTTON_CURSOR_ARROW);
 			}
 
-			try {
-				this.usingPreview = decodeURIComponent(root.loaderInfo.parameters.usingPreview) == "true" ? true : false;
-			} catch (ex:Object) {
-				this.usingPreview = false;
-			}
-			
 			this.SetupExternalInterface();
-			
-			this.SetupPreview();
 			
 			this.Debug("SWFUpload Init Complete");
 			this.PrintDebugInfo();
@@ -512,13 +504,14 @@ package {
 				ExternalInterface.addCallback("SetDebugEnabled", this.SetDebugEnabled);
 
 				ExternalInterface.addCallback("SetButtonImageURL", this.SetButtonImageURL);
-				//ExternalInterface.addCallback("SetButtonDimensions", this.SetButtonDimensions);
 				ExternalInterface.addCallback("SetButtonText", this.SetButtonText);
 				ExternalInterface.addCallback("SetButtonTextPadding", this.SetButtonTextPadding);
 				ExternalInterface.addCallback("SetButtonTextStyle", this.SetButtonTextStyle);
 				ExternalInterface.addCallback("SetButtonAction", this.SetButtonAction);
 				ExternalInterface.addCallback("SetButtonDisabled", this.SetButtonDisabled);
 				ExternalInterface.addCallback("SetButtonCursor", this.SetButtonCursor);
+
+				ExternalInterface.addCallback("RequestImage", this.RequestImage);
 
 				ExternalInterface.addCallback("TestExternalInterface", this.TestExternalInterface);
 				ExternalInterface.addCallback("StopExternalInterfaceCheck", this.StopExternalInterfaceCheck);
@@ -1504,31 +1497,11 @@ package {
 			ExternalCall.UploadComplete(this.uploadComplete_Callback, jsFileObj);
 		}
 
-		/* *****************************
-		 *  Preview Functions
-		 * ***************************** */
-		private function SetupPreview():void
-		{
-			if (!this.usingPreview) {
-				this.Debug("Not using Preview");
-				return;
-			}
-			
-			this.requestImageLC = new LocalConnection();
-			this.requestImageLC.client = this;
-			try {
-				this.requestImageLC.connect(this.movieName);
-			} catch (ex:Error) {
-				this.Debug(ex.message);
-			}
-			
-			this.Debug("Preview set up");
-		}
 		
-		public function RequestImage(connectionName:String, file_id:String):void {
-			this.Debug("Image Request: " + connectionName + ", File ID: " + file_id);
+		public function RequestImage(previewName:String, fileID:String):void {
+			this.Debug("Image Request: " + previewName + ", File ID: " + fileID);
 			
-			var file:FileItem = this.FindFileInFileIndex(file_id);
+			var file:FileItem = this.FindFileInFileIndex(fileID);
 			if (file == null) {
 				this.Debug("Image Request: file not found");
 				return;
@@ -1540,10 +1513,9 @@ package {
 				Event.COMPLETE,
 				function (e:Event):void 
 				{
-					self.Debug("Image Request (" + connectionName + ":" + file_id + ") - Done Loading Image Data");
 					var fileRef:FileReference = FileReference(e.target);
 					fileRef.removeEventListener(Event.COMPLETE, arguments.callee);
-					self.SendRequestedImage(connectionName, file_id, fileRef.data);
+					self.ImageLoad_Complete(previewName, fileID, fileRef.data);
 				}
 			);
 			
@@ -1551,29 +1523,23 @@ package {
 			
 		}
 		
-		private function SendRequestedImage(connectionName:String, file_id:String, data:ByteArray):void {
-			try {
-
-				var sender:LocalConnection = new LocalConnection();
-				sender.send(connectionName, "StartImageSend", file_id);
-				var buffer:ByteArray = new ByteArray();
-
-				this.Debug("Image Request (" + connectionName + ":" + file_id + ") - Starting send (" + data.length + ")");
-
-				data.position = 0;
-				var bufferSize:int = 40000;
-				while ((bufferSize = Math.min(data.bytesAvailable, 40000)) > 0) {
-					buffer.clear();
-					data.readBytes(buffer, 0, bufferSize);
-					sender.send(connectionName, "ReceiveImageChunk", file_id, buffer);
+		private function ImageLoad_Complete(previewName:String, fileID:String, data:ByteArray):void {
+			this.Debug("Image Request (" + previewName + ":" + fileID + ") - Done Loading Image Data");
+			
+			// Save to SharedObject
+			var imgS:ImageShare = new ImageShare();
+			var self:SWFUpload = this;
+			imgS.addEventListener(StatusEvent.STATUS, function (e:StatusEvent):void {
+				e.target.removeEventListener(StatusEvent.STATUS, arguments.callee);
+				if (e.code === "Success") {
+					self.Debug("Store image succeeded");
+					ExternalCall.SendImage(self.sendImage_Callback, previewName, fileID);
+				} else {
+					self.Debug("Store image failed: " + e.code + " " + e.level);
 				}
-				
-				sender.send(connectionName, "EndImageSend", file_id);
+			});
 
-				this.Debug("Image Request (" + connectionName + ":" + file_id + ") - Done sending");
-			} catch (ex:Error) {
-				this.Debug(ex.message);
-			}
+			imgS.StoreImage(previewName, fileID, data);
 		}
 		
 		/* *************************************************************
@@ -1692,7 +1658,6 @@ package {
 			debug_info += "File Size Limit:        " + this.fileSizeLimit + " bytes\n";
 			debug_info += "File Upload Limit:      " + this.fileUploadLimit + "\n";
 			debug_info += "File Queue Limit:       " + this.fileQueueLimit + "\n";
-			debug_info += "Using Preview:          " + this.usingPreview + "\n";
 			debug_info += "Post Params:\n";
 			for (var key:String in this.uploadPostObject) {
 				if (this.uploadPostObject.hasOwnProperty(key)) {

@@ -15,6 +15,18 @@ SWFUpload.prototype.getFlashVars = (function (oldGetFlashVars) {
 })(SWFUpload.prototype.getFlashVars);
 
 
+// Private: requestImage
+SWFUpload.prototype.requestImage = function (previewName, fileID) {
+	this.callFlash("RequestImage", [previewName, fileID]);
+};
+// Private: sendImage
+SWFUpload.prototype.sendImage = function (previewName, fileID) {
+	this.debug("SWFUpload sending " + fileID + " to " + previewName);
+	SWFUpload.Preview.instances[previewName].loadImage(fileID);
+};
+
+
+
 /* ******************* */
 /* Constructor & Init  */
 /* ******************* */
@@ -33,6 +45,7 @@ SWFUpload.Preview.prototype.init = function (userSettings) {
 		this.movieName = "Preview_" + SWFUpload.Preview.movieCount++;
 		this.movieElement = null;
 		this.swfUpload = null;
+		this.previewSupported = false;
 
 
 		// Setup global control tracking
@@ -77,8 +90,8 @@ SWFUpload.Preview.prototype.initSettings = function (userSettings) {
 	this.ensureDefault("preview_window_mode", SWFUpload.WINDOW_MODE.OPAQUE);
 	
 	this.ensureDefault("resize_to_fit", true);
-	this.ensureDefault("width", 100);
-	this.ensureDefault("height", 100);
+	this.ensureDefault("width", 0);
+	this.ensureDefault("height", 0);
 
 	// Debug Settings
 	this.ensureDefault("debug", false);
@@ -88,6 +101,10 @@ SWFUpload.Preview.prototype.initSettings = function (userSettings) {
 	this.ensureDefault("preview_complete_handler", null);
 	this.ensureDefault("debug_handler", this.debugMessage);
 
+	// contrain to the minimum dimensions
+	this.settings.width = Math.max(this.settings.width, 214);
+	this.settings.height = Math.max(this.settings.height, 137);
+	
 	delete this.ensureDefault;
 };
 
@@ -124,7 +141,7 @@ SWFUpload.Preview.prototype.loadFlash = function () {
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.Preview.prototype.getFlashHTML = function () {
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
-	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.width, '" height="', this.settings.height, '" class="swfupload">',
+	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.width, '" height="', this.settings.height, '">',
 				'<param name="wmode" value="', this.settings.preview_window_mode, '" />',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
 				'<param name="quality" value="high" />',
@@ -250,23 +267,17 @@ SWFUpload.Preview.prototype.callFlash = function (functionName, argumentArray) {
 	to operate SWFUpload
    ***************************** */
 
-// Public: startUpload starts uploading the first file in the queue unless
-// the optional parameter 'fileID' specifies the ID 
-SWFUpload.Preview.prototype.getPreview = function (swfUploadMovieName, file_id, width, height) {
-	this.debug("Called getPreview: " + swfUploadMovieName + " " + file_id);
-	this.swfUpload = SWFUpload.instances[swfUploadMovieName];
-	this.setPreviewDimensions(width, height);
-	this.callFlash("LoadImage", [swfUploadMovieName, file_id]);
-};
-
 // Public: setDebugEnabled changes the debug_enabled setting
 SWFUpload.Preview.prototype.setDebugEnabled = function (debugEnabled) {
 	this.settings.debug_enabled = debugEnabled;
 	this.callFlash("SetDebugEnabled", [debugEnabled]);
 };
 
-// Public: setButtonDimensions resizes the Flash Movie
+// Public: setPreviewDimensions resizes the Flash Movie
 SWFUpload.Preview.prototype.setPreviewDimensions = function (width, height) {
+	width = Math.max(width, 214);
+	height = Math.max(height, 137);
+	
 	this.debug("Resizing preview to " + width + " by " + height);
 	var movie = this.getMovieElement();
 	if (movie != undefined && this.settings.resize_to_fit) {
@@ -274,6 +285,18 @@ SWFUpload.Preview.prototype.setPreviewDimensions = function (width, height) {
 		movie.style.height = height + "px";
 	}
 	
+};
+
+SWFUpload.Preview.prototype.requestImage = function (swfUploadMovieName, fileID) {
+	try {
+		SWFUpload.instances[swfUploadMovieName].requestImage(this.movieName, fileID);
+	} catch (ex) {
+		// FIXME throw a previewError event
+	}
+};
+
+SWFUpload.Preview.prototype.loadImage = function (fileID) {
+	this.callFlash("LoadImage", [fileID]);
 };
 
 
@@ -329,17 +352,17 @@ SWFUpload.Preview.prototype.executeNextEvent = function () {
 
 // Private: This event is called by Flash when it has finished loading. Don't modify this.
 // Use the swfupload_loaded_handler event setting to execute custom code when SWFUpload has loaded.
-SWFUpload.Preview.prototype.flashReady = function () {
+SWFUpload.Preview.prototype.flashReady = function (params) {
 	// Check that the movie element is loaded correctly with its ExternalInterface methods defined
 	var movieElement = this.getMovieElement();
+	this.previewSupported = params[0];
+	this.debug("Preview Support:" + (this.previewSupported ? "Yes" : "No"));
 
 	if (!movieElement) {
 		this.debug("Flash called back ready but the flash movie can't be found.");
 		return;
 	}
 
-	this.cleanUp();
-	
 	this.queueEvent("preview_loaded_handler");
 };
 
@@ -379,7 +402,6 @@ SWFUpload.Preview.prototype.cleanUp = function () {
 	
 	return movieElement;
 };
-
 
 SWFUpload.Preview.prototype.previewComplete = function () {
 	this.queueEvent("preview_complete_handler");

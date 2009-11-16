@@ -32,8 +32,6 @@ package {
 		private var movieName:String = "";
 		private var debugEnabled:Boolean = false;
 		
-		private var hasCalledFlashReady:Boolean = false;
-		
 		// Callbacks
 		private var flashReady_Callback:String;
 		private var fileDialogStart_Callback:String;
@@ -94,12 +92,21 @@ package {
 			
 			this.SetupExternalInterface();
 			
-			this.Debug("Stage Size:" + this.stage.width + " by " + this.stage.height);
+			this.Debug("Stage Size:" + this.stage.stageWidth + " by " + this.stage.stageHeight);
 			this.Debug("Preview Init Complete: " + this.movieName);
 
-			ExternalCall.Simple(this.flashReady_Callback);
-			this.hasCalledFlashReady = true;
-			
+			try {
+				var imgS:ImageShare = new ImageShare();
+				imgS.addEventListener(StatusEvent.STATUS, this.FlushStatus);
+				imgS.PreFlush();
+			} catch (err:Error) {
+				this.FlushStatus(new StatusEvent(StatusEvent.STATUS, false, false, ImageShare.FAILED));
+			}
+		}
+		
+		private function FlushStatus(e:StatusEvent):void {
+			var previewSupported:Boolean = e.code === ImageShare.SUCCESS;
+			ExternalCall.Generic(this.flashReady_Callback, previewSupported);
 		}
 
 		private function HandleResize(e:Event):void {
@@ -131,17 +138,17 @@ package {
 			this.debugEnabled = debug;
 		}
 		
-		private function ShowImage():void {
+		private function LoadImage(fileID:String):Boolean {
 			try {
-				this.Debug("Loading received image data");
-				if (this.receiver != null) {
-					try {
-						this.receiver.close();
-					} catch (ex:Error) {}
-					this.receiver = null;
-				}
-				this.receivingFileID = "";
+				this.Debug("Beginning load of file " + fileID);
+				var imageData:* = ImageShare.GetImage(this.movieName, fileID);
 
+				if (!(imageData is ByteArray)) {
+					// FIXME -- trigger previewError
+					this.Debug("Image data is missing: Keys: " + imageData);
+					return false;
+				}
+				
 				if (this.imageLoader != null) {
 					this.imageLoader.unload();
 					this.imageLoader = null;
@@ -150,81 +157,29 @@ package {
 				this.imageLoader = new Loader();
 				imageLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.ImageLoaderComplete);
 				
-				imageLoader.loadBytes(this.imageData);
-				this.imageData = null;
+				imageLoader.loadBytes(imageData);
 			} catch (ex:Error) {
-				this.Debug(ex.message);
+				// FIXME -- trigger previewError
+				this.Debug(ex.name + ":" + ex.message + ":" + ex.getStackTrace());
 			}
+			
+			return true;
 		}
 
 		private function ImageLoaderComplete(e:Event):void {
-			e.target.removeEventListener(Event.COMPLETE, this.ImageLoaderComplete);
-			var loader:Loader = Loader(e.target.loader);
-			Bitmap(loader.content).smoothing = true;
-			this.Debug("Image size: " + loader.width + " by " + loader.height);
-			
-			this.stage.addChild(loader);
-			this.HandleResize(null);
-			
-			ExternalCall.Simple(this.complete_Callback);
-		}
-		
-		private var receiver:LocalConnection = null;
-		private var receivingFileID:String = "";
-		private var imageData:ByteArray;
-		
-		private function LoadImage(swfUploadMovieName:String, file_id:String):void {
-			this.Debug("Beginning request of file " + file_id + " from " + swfUploadMovieName);
-			
-			this.receivingFileID = "";	// Effectively cancels any previous previews
-			
-			// Connect to the SWFUpload movie.  Tell it to send the file and what the server name is
-			this.receiver = new LocalConnection();
-			this.receiver.client = this;
 			try {
-				this.receiver.connect(this.movieName);
-			} catch (ex:Error) {
-				this.Debug("Error starting LocalConnection server: " + ex.message);
-				return;
-			}
-			
-			try {
-				var notify:LocalConnection = new LocalConnection();
-				this.Debug("RequestImage");
-				notify.send(swfUploadMovieName, "RequestImage", this.movieName, file_id);
-			} catch (ex:Error) {
-				this.Debug("Error requesting image from " + swfUploadMovieName + " : " + ex.message);
-				return;
-			}
-		}
-		
-		public function StartImageSend(file_id:String):void {
-			if (this.receivingFileID === "") {
-				try {
-					this.Debug("Starting Data receiving for " + file_id);
-
-					this.imageData = new ByteArray();
-					this.receivingFileID = file_id;
-				} catch (ex:Error) {
-
-				}
-			} else {
-				this.Debug("Attempted to start data send for unmatched file id " + file_id);
-			}
-		}
-		public function ReceiveImageChunk(file_id:String, data:ByteArray):void {
-			if (file_id === this.receivingFileID) {
-				this.imageData.writeBytes(data);
-			} else {
-				this.Debug("Attempted send for unmatched file id " + file_id);
-			}
-		}
-		public function EndImageSend(file_id:String):void {
-			if (file_id === this.receivingFileID) {
-				this.Debug("Finished send of " + this.imageData.length + " bytes for " + file_id);
-				this.ShowImage();
-			} else {
-				this.Debug("Attempted end send for unmatched file id " + file_id);
+				e.target.removeEventListener(Event.COMPLETE, this.ImageLoaderComplete);
+				var loader:Loader = Loader(e.target.loader);
+				Bitmap(loader.content).smoothing = true;
+				this.Debug("Image size: " + loader.width + " by " + loader.height);
+				
+				this.stage.addChild(loader);
+				this.HandleResize(null);
+				
+				ExternalCall.Simple(this.complete_Callback);
+			} catch (err:Error)
+			{
+				// FIXME -- trigger previewError
 			}
 		}
 		

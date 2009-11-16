@@ -13,6 +13,10 @@ package {
 		public static function Simple(callback:String):void {
 			ExternalInterface.call(callback);
 		}
+
+		public static function SendImage(callback:String, preview_name:String, file_id:String):void {
+			ExternalInterface.call(callback, EscapeMessage(preview_name), EscapeMessage(file_id));
+		}
 		
 		public static function FileQueued(callback:String, file_object:Object):void {
 			ExternalInterface.call(callback, EscapeMessage(file_object));
@@ -59,6 +63,16 @@ package {
 		
 		public static function Bool(callback:String):Boolean {
 			return ExternalInterface.call(callback);
+		}
+		
+		public static function Generic(callback:String, ... rest):* {
+			var escapedRest:Array = new Array();
+			for each (var i:* in rest) 
+			{
+				escapedRest.push(EscapeMessage(i));
+			}
+			
+			return ExternalInterface.call(callback, escapedRest);
 		}
 		
 		

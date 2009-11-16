@@ -265,7 +265,7 @@ SWFUpload.prototype.getFlashHTML = function () {
 				'<param name="wmode" value="', this.settings.button_window_mode, '" />',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
 				'<param name="quality" value="high" />',
-				'<param name="menu" value="false" />',
+				//'<param name="menu" value="false" />',
 				'<param name="allowScriptAccess" value="always" />',
 				'<param name="flashvars" value="' + this.getFlashVars() + '" />',
 				'</object>'].join("");
@@ -755,7 +755,6 @@ SWFUpload.prototype.setButtonCursor = function (cursor) {
 	this.callFlash("SetButtonCursor", [cursor]);
 };
 
-
 /* *******************************
 	Flash Event Interfaces
 	These functions are used by Flash to trigger the various
@@ -849,7 +848,7 @@ SWFUpload.prototype.flashReady = function () {
 		return;
 	}
 
-	this.cleanUp();
+	//this.cleanUp();
 	
 	this.queueEvent("swfupload_loaded_handler");
 };

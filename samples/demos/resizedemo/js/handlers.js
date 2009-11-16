@@ -83,6 +83,8 @@ function ShowPreview(id) {
 	});
 }
 function PreviewLoadedHandler(id) {
-	this.getPreview(swfu.movieName, id, this.settings.width, this.settings.height);
+	if (this.previewSupported) {
+		this.requestImage(swfu.movieName, id);
+	}
 }
 
