@@ -174,6 +174,7 @@ package {
 
 			var self:SWFUpload = this;
 			Security.allowDomain("*");	// Allow uploading to any domain
+			Security.allowInsecureDomain("*");	// Allow uploading from HTTP to HTTPS and HTTPS to HTTP
 			
 			// Keep Flash Player busy so it doesn't show the "flash script is running slowly" error
 			var counter:Number = 0;
@@ -510,8 +511,6 @@ package {
 				ExternalInterface.addCallback("SetButtonAction", this.SetButtonAction);
 				ExternalInterface.addCallback("SetButtonDisabled", this.SetButtonDisabled);
 				ExternalInterface.addCallback("SetButtonCursor", this.SetButtonCursor);
-
-				ExternalInterface.addCallback("RequestImage", this.RequestImage);
 
 				ExternalInterface.addCallback("TestExternalInterface", this.TestExternalInterface);
 				ExternalInterface.addCallback("StopExternalInterfaceCheck", this.StopExternalInterfaceCheck);
@@ -1497,50 +1496,6 @@ package {
 			ExternalCall.UploadComplete(this.uploadComplete_Callback, jsFileObj);
 		}
 
-		
-		public function RequestImage(previewName:String, fileID:String):void {
-			this.Debug("Image Request: " + previewName + ", File ID: " + fileID);
-			
-			var file:FileItem = this.FindFileInFileIndex(fileID);
-			if (file == null) {
-				this.Debug("Image Request: file not found");
-				return;
-			}
-			
-			var self:SWFUpload = this;
-			
-			file.file_reference.addEventListener(
-				Event.COMPLETE,
-				function (e:Event):void 
-				{
-					var fileRef:FileReference = FileReference(e.target);
-					fileRef.removeEventListener(Event.COMPLETE, arguments.callee);
-					self.ImageLoad_Complete(previewName, fileID, fileRef.data);
-				}
-			);
-			
-			file.file_reference.load();
-			
-		}
-		
-		private function ImageLoad_Complete(previewName:String, fileID:String, data:ByteArray):void {
-			this.Debug("Image Request (" + previewName + ":" + fileID + ") - Done Loading Image Data");
-			
-			// Save to SharedObject
-			var imgS:ImageShare = new ImageShare();
-			var self:SWFUpload = this;
-			imgS.addEventListener(StatusEvent.STATUS, function (e:StatusEvent):void {
-				e.target.removeEventListener(StatusEvent.STATUS, arguments.callee);
-				if (e.code === "Success") {
-					self.Debug("Store image succeeded");
-					ExternalCall.SendImage(self.sendImage_Callback, previewName, fileID);
-				} else {
-					self.Debug("Store image failed: " + e.code + " " + e.level);
-				}
-			});
-
-			imgS.StoreImage(previewName, fileID, data);
-		}
 		
 		/* *************************************************************
 			Utility Functions
