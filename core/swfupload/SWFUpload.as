@@ -360,13 +360,6 @@ package {
 				this.SetAssumeSuccessTimeout(0);
 			}
 
-			/*
-			try {
-				this.SetButtonDimensions(Number(decodeURIComponent(root.loaderInfo.parameters.buttonWidth)), Number(decodeURIComponent(root.loaderInfo.parameters.buttonHeight)));
-			} catch (ex:Object) {
-				this.SetButtonDimensions(0, 0);
-			}
-			*/
 			try {
 				this.SetButtonImageURL(String(decodeURIComponent(root.loaderInfo.parameters.buttonImageURL)));
 			} catch (ex:Object) {
@@ -612,6 +605,7 @@ package {
 
 			// If the 100% upload progress hasn't been called then call it now
 			if (!file.finalUploadProgress) {
+				file.finalUploadProgress = true;
 				this.Debug("Event: uploadProgress (simulated 100%): File ID: " + file.id + ". Bytes: " + file.file_reference.size + ". Total: " + file.file_reference.size);
 				ExternalCall.UploadProgress(this.uploadProgress_Callback, file.ToJavaScriptObject(), file.file_reference.size, file.file_reference.size);
 			}
@@ -1249,11 +1243,6 @@ package {
 			}
 		};
 
-/*		private function SetButtonDimensions(width:Number = -1, height:Number = -1):void {
-			this.HandleStageResize(null);
-			this.UpdateButtonState();
-		}
-*/		
 		private function SetButtonText(button_text:String):void {
 			this.buttonText = button_text;
 			
