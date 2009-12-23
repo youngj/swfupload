@@ -3,8 +3,28 @@ var FeaturesDemoHandlers = {
 		FeaturesDemo.start(this);  // This refers to the SWFObject because SWFUpload calls this with .apply(this).
 	},
 	
-	buttonAction : function () {
-		alert("Thank you for clicking the button!");
+	mouseClick : function () {
+		try {
+			FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("Mouse Click", "");
+		} catch (ex) {
+			this.debug(ex);
+		}
+	},
+	
+	mouseOver : function () {
+		try {
+			FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("Mouse Over", "");
+		} catch (ex) {
+			this.debug(ex);
+		}
+	},
+
+	mouseOut : function () {
+		try {
+			FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("Mosue Out", "");
+		} catch (ex) {
+			this.debug(ex);
+		}
 	},
 	
 	fileDialogStart : function () {
@@ -159,8 +179,13 @@ var FeaturesDemoHandlers = {
 
 				FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Stopped " + file.id, "");
 				break;
+			case SWFUpload.UPLOAD_ERROR.RESIZE:
+				errorName = "RESIZE FAILED";
+				FeaturesDemo.selQueue.value = file.id;
+				FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = file.id + ":----:" + file.name;
+				break;
 			default:
-				errorName = "UNKNOWN";
+				errorName = "OTHER";
 				break;
 			}
 

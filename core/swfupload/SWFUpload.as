@@ -47,7 +47,7 @@ package {
 		}
 		
 
-		private const build_number:String = "2.5.0 2009-11-04 Alpha";
+		private const build_number:String = "2.5.0 2009-12-23 Beta 1";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -90,9 +90,10 @@ package {
 		private var debug_Callback:String;
 		private var testExternalInterface_Callback:String;
 		private var cleanUp_Callback:String;
-		private var buttonAction_Callback:String;
 		
-		private var sendImage_Callback:String;
+		private var mouseOut_Callback:String;
+		private var mouseOver_Callback:String;
+		private var mouseClick_Callback:String;
 		
 		// Values passed in from the HTML
 		private var movieName:String;
@@ -156,7 +157,8 @@ package {
 		private var BUTTON_ACTION_SELECT_FILE:Number                = -100;
 		private var BUTTON_ACTION_SELECT_FILES:Number               = -110;
 		private var BUTTON_ACTION_START_UPLOAD:Number               = -120;
-		private var BUTTON_ACTION_JAVASCRIPT:Number					= -130;
+		private var BUTTON_ACTION_NONE:Number					    = -130;
+		private var BUTTON_ACTION_JAVASCRIPT:Number					= -130;	// DEPRECATED
 		
 		private var BUTTON_CURSOR_ARROW:Number						= -1;
 		private var BUTTON_CURSOR_HAND:Number						= -2;
@@ -215,6 +217,7 @@ package {
 				self.buttonStateMouseDown = event.buttonDown;
 				self.buttonStateOver = true;
 				self.UpdateButtonState();
+				ExternalCall.Simple(self.mouseOver_Callback);
 			});
 			this.stage.addEventListener(MouseEvent.MOUSE_OUT, function (event:MouseEvent):void {
 				self.buttonStateMouseDown = false;
@@ -226,6 +229,7 @@ package {
 				self.buttonStateMouseDown = false;
 				self.buttonStateOver = false;
 				self.UpdateButtonState();
+				ExternalCall.Simple(self.mouseOut_Callback);
 			});
 			
 			this.buttonTextField = new TextField();
@@ -263,27 +267,28 @@ package {
 			// a call directly to it on our instance.  There is no error handling for undefined callback functions.
 			// A developer would have to deliberately remove the default functions,set the variable to null, or remove
 			// it from the init function.
-			this.flashReady_Callback         = "SWFUpload.instances[\"" + this.movieName + "\"].flashReady";
-			this.fileDialogStart_Callback    = "SWFUpload.instances[\"" + this.movieName + "\"].fileDialogStart";
-			this.fileQueued_Callback         = "SWFUpload.instances[\"" + this.movieName + "\"].fileQueued";
-			this.fileQueueError_Callback     = "SWFUpload.instances[\"" + this.movieName + "\"].fileQueueError";
-			this.fileDialogComplete_Callback = "SWFUpload.instances[\"" + this.movieName + "\"].fileDialogComplete";
+			this.flashReady_Callback            = "SWFUpload.instances[\"" + this.movieName + "\"].flashReady";
+			this.fileDialogStart_Callback       = "SWFUpload.instances[\"" + this.movieName + "\"].fileDialogStart";
+			this.fileQueued_Callback            = "SWFUpload.instances[\"" + this.movieName + "\"].fileQueued";
+			this.fileQueueError_Callback        = "SWFUpload.instances[\"" + this.movieName + "\"].fileQueueError";
+			this.fileDialogComplete_Callback    = "SWFUpload.instances[\"" + this.movieName + "\"].fileDialogComplete";
 
-			this.uploadStart_Callback        = "SWFUpload.instances[\"" + this.movieName + "\"].uploadStart";
-			this.uploadProgress_Callback     = "SWFUpload.instances[\"" + this.movieName + "\"].uploadProgress";
-			this.uploadError_Callback        = "SWFUpload.instances[\"" + this.movieName + "\"].uploadError";
-			this.uploadSuccess_Callback      = "SWFUpload.instances[\"" + this.movieName + "\"].uploadSuccess";
+			this.uploadStart_Callback           = "SWFUpload.instances[\"" + this.movieName + "\"].uploadStart";
+			this.uploadProgress_Callback        = "SWFUpload.instances[\"" + this.movieName + "\"].uploadProgress";
+			this.uploadError_Callback           = "SWFUpload.instances[\"" + this.movieName + "\"].uploadError";
+			this.uploadSuccess_Callback         = "SWFUpload.instances[\"" + this.movieName + "\"].uploadSuccess";
 
-			this.uploadComplete_Callback     = "SWFUpload.instances[\"" + this.movieName + "\"].uploadComplete";
+			this.uploadComplete_Callback        = "SWFUpload.instances[\"" + this.movieName + "\"].uploadComplete";
 
-			this.debug_Callback              = "SWFUpload.instances[\"" + this.movieName + "\"].debug";
+			this.debug_Callback                 = "SWFUpload.instances[\"" + this.movieName + "\"].debug";
 
 			this.testExternalInterface_Callback = "SWFUpload.instances[\"" + this.movieName + "\"].testExternalInterface";
-			this.cleanUp_Callback            = "SWFUpload.instances[\"" + this.movieName + "\"].cleanUp";
-			this.buttonAction_Callback       = "SWFUpload.instances[\"" + this.movieName + "\"].buttonAction";
+			this.cleanUp_Callback               = "SWFUpload.instances[\"" + this.movieName + "\"].cleanUp";
 			
-			this.sendImage_Callback          = "SWFUpload.instances[\"" + this.movieName + "\"].sendImage";
-
+			this.mouseOut_Callback              = "SWFUpload.instances[\"" + this.movieName + "\"].mouseOut";
+			this.mouseOver_Callback             = "SWFUpload.instances[\"" + this.movieName + "\"].mouseOver";
+			this.mouseClick_Callback            = "SWFUpload.instances[\"" + this.movieName + "\"].mouseClick";
+			
 			// Get the Flash Vars
 			this.uploadURL = decodeURIComponent(root.loaderInfo.parameters.uploadURL);
 			this.filePostName = decodeURIComponent(root.loaderInfo.parameters.filePostName);
@@ -844,6 +849,8 @@ package {
 		 * If the file is currently uploading it is cancelled and the uploadComplete
 		 * event gets called.
 		 * If the file is not currently uploading then only the uploadCancelled event is fired.
+		 * 
+		 * The triggerComplete is used by the resize stuff to cancel the upload
 		 * */
 		private function CancelUpload(file_id:String, triggerErrorEvent:Boolean = true):void {
 			var file_item:FileItem = null;
@@ -867,6 +874,7 @@ package {
 				} else {
 					this.Debug("Event: cancelUpload: File ID: " + this.current_file_item.id + ". Cancelled current upload. Suppressed uploadError event.");
 				}
+				
 				this.UploadComplete(false);
 			} else if (file_id) {
 				// Find the file in the queue
@@ -1213,12 +1221,14 @@ package {
 				else if (this.buttonAction === this.BUTTON_ACTION_START_UPLOAD) {
 					this.StartUpload();
 				}
-				else if (this.buttonAction === this.BUTTON_ACTION_JAVASCRIPT) {
-					ExternalCall.Simple(this.buttonAction_Callback);
+				else if (this.buttonAction === this.BUTTON_ACTION_NONE) {
+					ExternalCall.Simple(this.mouseClick_Callback);
 				}
 				else {
 					this.SelectFiles();
 				}
+			} else {
+				ExternalCall.Simple(this.mouseClick_Callback);
 			}
 		}
 		
@@ -1354,6 +1364,7 @@ package {
 				
 				this.Debug("PrepareThumbnail(): Beginning image resizing.");
 				this.Debug("Settings: Width: " + resizeSettings["width"] + ", Height: " + resizeSettings["height"] + ", Encoding: " + (resizeSettings["encoding"] == this.ENCODER_PNG ? "PNG" : "JPEG") + ", Quality: " + resizeSettings["quality"] + ".");
+				this.Open_Handler(new Event(Event.OPEN, false, false));	// We want to trigger the first progress event before we start the resize
 				resizer.ResizeImage();
 			
 			} catch (ex:Object) {
@@ -1382,8 +1393,16 @@ package {
 			event.target.removeEventListener(ErrorEvent.ERROR, this.PrepareResizedImageErrorHandler);
 
 			this.Debug("PrepareResizedImageErrorHandler(): Error resizing image: " + event.text);
-			this.CancelUpload(this.current_file_item.id, false);
-			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_RESIZE, this.current_file_item.ToJavaScriptObject(), "Error generating resized image. " + event.text);
+
+			if (this.current_file_item.file_status != FileItem.FILE_STATUS_ERROR) {
+				this.upload_errors++;
+				this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
+
+				this.Debug("Event: uploadError : Resize Error : File ID: " + this.current_file_item.id + ". Error: " + event.text);
+				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_RESIZE, this.current_file_item.ToJavaScriptObject(), "Error generating resized image. " + event.text);
+			}
+
+			this.UploadComplete(true);
 		}		
 
 		// This starts the upload when the user returns TRUE from the uploadStart event.  Rather than just have the value returned from
@@ -1592,7 +1611,7 @@ package {
 
 		private function PrintDebugInfo():void {
 			var debug_info:String = "\n----- SWF DEBUG OUTPUT ----\n";
-			debug_info += "Build Number:           " + this.build_number + "\n";
+			debug_info += "Version:                " + this.build_number + "\n";
 			debug_info += "movieName:              " + this.movieName + "\n";
 			debug_info += "Upload URL:             " + this.uploadURL + "\n";
 			debug_info += "File Types String:      " + this.fileTypes + "\n";

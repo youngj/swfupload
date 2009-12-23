@@ -2,12 +2,14 @@
 
  * --------- Version 2.5.0-----------
  * + Added Client Side thumbnail generation and uploading and related settings
- * + Added Client Side thumbnail preview plugin
  * = Fixed double encoding of settings issue
  * = Improved movieElement grabbing
  * - Removed settings clone as it is unreliable
  * = Fixed speed plugin so it checks for a file before extending it
  * + Progress event manually fired for 100% if not fired by Flash
+ * + mouseClick, mouseOver, mouseOut event and handler settings added
+ * - Removed button_action.javascript and button_action_handler. These are replaced by the mouseClick event
+ * + Added proxy plugin
 
  
  * --------- Version 2.2.1-----------

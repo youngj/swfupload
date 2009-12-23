@@ -443,10 +443,11 @@ var swfu = new SWFUpload({
 	<p>SWFUpload.BUTTON_ACTION is a simple object that contains button action code constants.  It is used with the button_action setting to set the behavior of the Flash based file dialog button.</p>
 	
 	<ul style="padding-left: 15px;">
-		<li>SELECT_FILE - when the Flash button is clicked the file dialog will only allow a single file to be selected.</li>
-		<li>SELECT_FILES - when the Flash button is clicked the file dialog allows multiple files to be selected.</li>
-		<li>START_UPLOAD - when the Flash button is clicked the first queued file will be uploaded.</li>
-		<li>JAVASCRIPT - when the Flash button is clicked the buttonAction event will be fired.</li>
+		<li>SELECT_FILE - when the Flash button is clicked the file dialog will only allow a single file to be selected. The mouseClick event is not fired in this case.</li>
+		<li>SELECT_FILES - when the Flash button is clicked the file dialog allows multiple files to be selected. The mouseClick event is not fired in this case.</li>
+		<li>START_UPLOAD - when the Flash button is clicked the first queued file will be uploaded. The mouseClick event is not fired in this case.</li>
+		<li>NONE - when the Flash button is clicked the mouseClick event will be fired.</li>
+		<li>JAVASCRIPT - same as the NONE action. <strong>This value is deprecated.</strong></li>
 	</ul>
 
 	<h4><a name="button_cursor"></a>SWFUpload.CURSOR</h4>
@@ -675,7 +676,7 @@ function uploadSuccess(file, serverData, receivedResponse) {
 	<p>Sets the top and left padding of the Flash button text.  The values may be negative.</p>
 	
 	<h4><a name="setButtonDisabled"></a>void setButtonDisabled(<span class="parameter">isDisabled</span>)</h4>
-	<p>When 'true' changes the Flash Button state to disabled and ignores any clicks.</p>
+	<p>When 'true' changes the Flash Button state to disabled and the BUTTON_ACTION is ignored.  The mouseClick event is always fired when the button is disabled.</p>
 	
 	<h4><a name="setButtonAction"></a>void setButtonAction(<span class="parameter">buttonAction</span>)</h4>
 	<p>Sets the action taken when the Flash button is clicked.  Valid action values are taken from the BUTTON_ACTION constants.</p>
@@ -710,9 +711,17 @@ function uploadSuccess(file, serverData, receivedResponse) {
 	<p>The swfUploadLoaded event is fired by flashReady.  It is settable.  swfUploadLoaded is called to let you know that it is safe to call SWFUpload methods.</p>
 	<p>Set using the swfupload_loaded_handler setting.</p>
 	
-	<h4><a name="buttonAction"></a><span class="function">buttonAction()</span></h4>
-	<p>buttonAction is fired when the button_action setting is set to SWFUpload.BUTTON_ACTION.JAVASCRIPT and the button is clicked. Analogous to a button's onClick event.  This event is not fired for other button_action settings.</p>
-	<p>Set using the button_action_handler setting.</p>
+	<h4><a name="mouseClick"></a><span class="function">mouseClick()</span></h4>
+	<p>mouseClick is fired when the button is clicked and the button_action setting is set to SWFUpload.BUTTON_ACTION.NONE or the button is disabled. This event is not fired for other button_action settings and the button is enabled.</p>
+	<p>Set using the mouse_click_handler setting.</p>
+	
+	<h4><a name="mouseOver"></a><span class="function">mouseOver()</span></h4>
+	<p>mouseOver is fired when the cursor moves over any part of the Flash Movie.</p>
+	<p>Set using the mouse_over_handler setting.</p>
+	
+	<h4><a name="mouseOut"></a><span class="function">mouseOut()</span></h4>
+	<p>mouseOut is fired when the cursor moves off the Flash Movie.</p>
+	<p>Set using the mouse_out_handler setting.</p>
 	
 	<h4><a name="fileDialogStart"></a><span class="function">fileDialogStart(<span class="parameter"></span>)</span></h4>
 	<p>fileDialogStart is fired after selectFile for selectFiles is called. This event is fired immediately before the File Selection Dialog
@@ -829,7 +838,9 @@ function uploadSuccess(file, serverData, receivedResponse) {
 	button_window_mode : SWFUpload.WINDOW_MODE.TRANSPARENT,
 	
 	swfupload_loaded_handler : swfupload_loaded_function,
-	button_action_handler : button_action_function,
+	mouse_click_handler : mouse_click_function,
+	mouse_over_handler : mouse_over_function,
+	mouse_out_handler : mouse_out_function,
 	file_dialog_start_handler : file_dialog_start_function,
 	file_queued_handler : file_queued_function,
 	file_queue_error_handler : file_queue_error_function,
@@ -1144,7 +1155,7 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	The string is built using the file's name and the separator [quote][space][quote].  The total number of files selected is determined by the sum
 	of the lengths of the file names and a prefixed and postfixed [quote] character (2 characters) and the number of files selected minus one times 3 (for the separator string)</p>
 	
-	<p>This limitation may vary from system to system. If a use selects too many files they will be receive a Flash Player generated warning message and will
+	<p>This limitation may vary from system to system. If a user selects too many files they will be receive a Flash Player generated warning message and will
 	be left at the File Selection Dialog.</p>
 
 	<h3>Proxies</h3>
@@ -1173,10 +1184,10 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<h3>Prematurely terminated connections</h3>
 	<p>Prematurely ending the response (such as a Response.end() in ASP.Net) can sometimes cause successful uploads to be reported as failed.</p>
 	
-	<h3>Filedata in Linux</h3>
+	<h3>Filedata POST name in Linux</h3>
 	<p>Changing the Filedata value (file_post_name setting) is ignored in Linux Flash Players.</p>
 	
-	<h3>Cookie issue</h3>
+	<h3>Cookie bug</h3>
 	<p>On Windows the Non-IE Flash Player plugin (FireFox, Opera, Safari, etc) will send the IE cookies regardless of the browser used.  This breaks authentication and sessions for many server-side scripting technologies.</p>
 	<p>Developers should manually pass Session and Authentication cookie information and manually restore Sessions on the Server Side if they wish to use Sessions</p>
 	<p>The SWFUpload package contains work-around sample code for PHP and ASP.Net</p>
@@ -1229,26 +1240,30 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<h3>Other Mac Issues</h3>
 	<ul>
 		<li>
+			Content must be returned by the server or the Mac Flash Player will not trigger the uploadSuccess event.  We have added the assume_success_timeout setting to help work around this.
+			But in general it is simply easier and more reliable to return a short string after the upload is complete.
+		</li>
+		<li>
 			Users have reported that uploading to subdomains does not work with the Mac Flash Player.
 		</li>
 		<li>
-				Users have reported that pages that redirect (HTTP Status 302) are not handled by the Mac Flash Player.  Windows
-				clients seem to handle this issue.
+			Users have reported that pages that redirect (HTTP Status 302) are not handled by the Mac Flash Player.  Windows
+			clients seem to handle this issue.  302 redirects are used in many authentication schemes and MVC frameworks.
 		</li>
 		<li>
-				The flash documentation states that on OS early than OS X 10.3 the bytes loaded is always reported as -1. SWFUpload converts
-				this to 0 but the total bytes will never be sent and 100% won't be reached.  The UI should be updated to display 100% complete in
-				uploadSuccess or uploadComplete events to maintain a consistent UI.
+			The flash documentation states that on OS early than OS X 10.3 the bytes loaded is always reported as -1. SWFUpload converts
+			this to 0 but the total bytes will never be sent and 100% won't be reached.  The UI should be updated to display 100% complete in
+			uploadSuccess or uploadComplete events to maintain a consistent UI.
 		</li>
 		<li>
 			Some users have reported issues if there is a space character in the upload_url for the Mac Flash Player.  Avoid spaces or try replacing them with + or %20.
 		</li>
 		<li>
-			Users have reported that the Flash Player for Mac adds the PORT to the HTTP_HOST server variable (e.g., http://www.example.com:80). If you are
+			Users have reported that the Flash Player for Mac adds the PORT to the HTTP HOST header (e.g., http://www.example.com:80). If you are
 			checking this variable in your server-side script be aware of the possible issue.
 		</li>
 		<li>
-			Files that contain only a resource fork are treated as zero byte file by the Flash Player and cannot be uploaded.	
+			Files that contain only a resource fork are treated as zero byte file by the Flash Player and cannot be uploaded.  (Note: Flash Player 10.1 may resolve this issue)
 		</li>
 	</ul>
 	

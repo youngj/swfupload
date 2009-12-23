@@ -26,6 +26,7 @@
 				file_post_name: "Filedata",	// This is the "name" of the file item that the server-side script will receive. Setting this doesn't work in the Linux Flash Player
 				requeue_on_error: false,
 				http_success : [123, 444],
+				assume_success_timeout : 25,
 
 				// File Upload Settings
 				file_size_limit : "100 MB",
@@ -45,7 +46,9 @@
 				
 				// Event Handler Settings
 				swfupload_loaded_handler : FeaturesDemoHandlers.swfUploadLoaded,
-				button_action_handler : FeaturesDemoHandlers.buttonAction,
+				mouse_click_handler : FeaturesDemoHandlers.mouseClick,
+				mouse_over_handler : FeaturesDemoHandlers.mouseOver,
+				mouse_out_handler : FeaturesDemoHandlers.mouseOut,
 				file_dialog_start_handler : FeaturesDemoHandlers.fileDialogStart,
 				file_queued_handler : FeaturesDemoHandlers.fileQueued,
 				file_queue_error_handler : FeaturesDemoHandlers.fileQueueError,
@@ -137,6 +140,15 @@
 								</tr>
 							</table>
 						</div>
+						<div>
+							<table class="btn">
+								<tr>
+									<td class="btn-left"></td>
+									<td class="btn-center"><button id="btnRequeueSelectedFile" type="button" class="action">Requeue Selected File</button></td>
+									<td class="btn-right"></td>
+								</tr>
+							</table>
+						</div>
 					</div>
 					<div class="fieldset" id="fsStaticSettings">
 					<span class="legend">Static Settings</span>
@@ -211,15 +223,40 @@
 					</div>
 					</div>
 					<div class="fieldset">
-					<span class="legend">Instance Information</span>
-					<div>
-						<label for="txtMovieName">movieName</label>
-						<input id="txtMovieName" type="text" class="textbox" />
+						<span class="legend">Instance Information</span>
+						<div>
+							<label for="txtMovieName">movieName</label>
+							<input id="txtMovieName" type="text" class="textbox" />
+						</div>
+						<div>
+							<label for="txtFlashHTML">Flash HTML</label>
+							<textarea id="txtFlashHTML" wrap="soft" style="height: 100px;"></textarea>
+						</div>
 					</div>
-					<div>
-						<label for="txtFlashHTML">Flash HTML</label>
-						<textarea id="txtFlashHTML" wrap="soft" style="height: 100px;"></textarea>
-					</div>
+					<div class="fieldset">
+						<span class="legend">Resize</span>
+						<div>
+							<div>
+								<label>Target Size: <input type="text" id="txtResizeWidth" style="width: 25px;" /> w</label>
+								<label><input type="text" id="txtResizeHeight" style="width: 25px;" /> h</label>
+							</div>
+							<div>
+								Encoding: <label><input type="radio" id="rbJPEG" name="encoding" /> JPEG</label>
+								<label><input type="radio" id="rbPNG" name="encoding" /> PNG</label>
+							</div>
+							<div>
+								<label>Quality (JPEG): <input type="text" id="txtQuality" /></label>
+							</div>
+						</div>
+						<div>
+							<table class="btn">
+								<tr>
+									<td class="btn-left"></td>
+									<td class="btn-center" style="width: auto;"><button id="btnResizeSelectedFile" type="button" class="action">Resize &amp; Upload Selected File</button></td>
+									<td class="btn-right"></td>
+								</tr>
+							</table>
+						</div>
 					</div>
 				</td>
 				<td style="width: 316px;"><div class="fieldset">
@@ -284,7 +321,7 @@
 										<input id="rbButtonActionSelectFile" type="radio" name="button_action" /> <label for="rbButtonActionSelectFile" style="display: inline;">Select File</label><br />
 										<input id="rbButtonActionSelectFiles" type="radio" name="button_action" /> <label for="rbButtonActionSelectFiles" style="display: inline;">Select Files</label><br />
 										<input id="rbButtonActionStartUpload" type="radio" name="button_action" /> <label for="rbButtonActionStartUpload" style="display: inline;">Start Upload</label><br />
-										<input id="rbButtonActionJavaScript" type="radio" name="button_action" /> <label for="rbButtonActionJavaScript" style="display: inline;">JavaScript</label><br />
+										<input id="rbButtonActionNone" type="radio" name="button_action" /> <label for="rbButtonActionNone" style="display: inline;">None</label><br />
 										</div>
 									</div>
 									<div class="checkbox">

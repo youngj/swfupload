@@ -13,6 +13,13 @@ var FeaturesDemo = {
 			}
 			return false;
 		};
+		FeaturesDemo.btnResizeSelectedFile.onclick = function () {
+			try {
+				FeaturesDemo.resizeSelectedFile();
+			} catch (ex) {
+			}
+			return false;
+		};
 		FeaturesDemo.btnStopUpload.onclick = function () {
 			try {
 				FeaturesDemo.stopUpload();
@@ -30,6 +37,13 @@ var FeaturesDemo = {
 		FeaturesDemo.btnCancelSelectedFileNoEvent.onclick = function () {
 			try {
 				FeaturesDemo.cancelSelectedFile(false);
+			} catch (ex) {
+			}
+			return false;
+		};
+		FeaturesDemo.btnRequeueSelectedFile.onclick = function () {
+			try {
+				FeaturesDemo.requeueSelectedFile();
 			} catch (ex) {
 			}
 			return false;
@@ -89,6 +103,7 @@ var FeaturesDemo = {
 		FeaturesDemo.btnStopUpload = document.getElementById("btnStopUpload");
 		FeaturesDemo.btnCancelSelectedFile = document.getElementById("btnCancelSelectedFile");
 		FeaturesDemo.btnCancelSelectedFileNoEvent = document.getElementById("btnCancelSelectedFileNoEvent");
+		FeaturesDemo.btnRequeueSelectedFile = document.getElementById("btnRequeueSelectedFile");
 		FeaturesDemo.txtAddFileParamName = document.getElementById("txtAddFileParamName");
 		FeaturesDemo.txtAddFileParamValue = document.getElementById("txtAddFileParamValue");
 		FeaturesDemo.btnAddFileParam = document.getElementById("btnAddFileParam");
@@ -99,6 +114,12 @@ var FeaturesDemo = {
 		FeaturesDemo.txtAddParamName = document.getElementById("txtAddParamName");
 		FeaturesDemo.txtAddParamValue = document.getElementById("txtAddParamValue");
 		FeaturesDemo.btnAddParam = document.getElementById("btnAddParam");
+		FeaturesDemo.btnResizeSelectedFile = document.getElementById("btnResizeSelectedFile");
+		FeaturesDemo.txtResizeWidth = document.getElementById("txtResizeWidth");
+		FeaturesDemo.txtResizeHeight = document.getElementById("txtResizeHeight");
+		FeaturesDemo.rbJPEG = document.getElementById("rbJPEG");
+		FeaturesDemo.rbPNG = document.getElementById("rbPNG");
+		FeaturesDemo.txtQuality = document.getElementById("txtQuality");
 		FeaturesDemo.txtUploadTarget = document.getElementById("txtUploadTarget");
 		FeaturesDemo.txtHTTPSuccess = document.getElementById("txtHTTPSuccess");
 		FeaturesDemo.txtAssumeSuccessTimeout = document.getElementById("txtAssumeSuccessTimeout");
@@ -124,7 +145,7 @@ var FeaturesDemo = {
 		FeaturesDemo.rbButtonActionSelectFile = document.getElementById("rbButtonActionSelectFile");
 		FeaturesDemo.rbButtonActionSelectFiles = document.getElementById("rbButtonActionSelectFiles");
 		FeaturesDemo.rbButtonActionStartUpload = document.getElementById("rbButtonActionStartUpload");
-		FeaturesDemo.rbButtonActionJavaScript = document.getElementById("rbButtonActionJavaScript");
+		FeaturesDemo.rbButtonActionNone = document.getElementById("rbButtonActionNone");
 		FeaturesDemo.txtButtonImageUrl = document.getElementById("txtButtonImageUrl");
 		FeaturesDemo.txtButtonText = document.getElementById("txtButtonText");
 		FeaturesDemo.txtButtonWidth = document.getElementById("txtButtonWidth");
@@ -147,6 +168,11 @@ var FeaturesDemo = {
 		FeaturesDemo.txtUploadTarget.value = "";
 		FeaturesDemo.txtFlashHTML.value = "";
 		FeaturesDemo.txtMovieName.value = "";
+		FeaturesDemo.txtResizeWidth.value = "";
+		FeaturesDemo.txtResizeHeight.value = "";
+		FeaturesDemo.rbJPEG.checked = true;
+		FeaturesDemo.rbPNGchecked = false;
+		FeaturesDemo.txtQuality.value = "";
 		FeaturesDemo.txtHTTPSuccess.value = "";
 		FeaturesDemo.txtAssumeSuccessTimeout.value = "";
 		FeaturesDemo.txtFilePostName.value = "";
@@ -167,7 +193,7 @@ var FeaturesDemo = {
 		FeaturesDemo.rbButtonActionSelectFile.checked = false;
 		FeaturesDemo.rbButtonActionSelectFiles.checked = false;
 		FeaturesDemo.rbButtonActionStartUpload.checked = false;
-		FeaturesDemo.rbButtonActionJavaScript.checked = false;
+		FeaturesDemo.rbButtonActionNone.checked = false;
 		FeaturesDemo.txtButtonImageUrl.value = "";
 		FeaturesDemo.txtButtonText.value = "";
 		FeaturesDemo.txtButtonWidth.value = "";
@@ -194,8 +220,8 @@ var FeaturesDemo = {
 		case SWFUpload.BUTTON_ACTION.START_UPLOAD:
 			FeaturesDemo.rbButtonActionStartUpload.checked = true;
 			break;
-		case SWFUpload.BUTTON_ACTION.JAVASCRIPT:
-			FeaturesDemo.rbButtonActionJavaScript.checked = true;
+		case SWFUpload.BUTTON_ACTION.NONE:
+			FeaturesDemo.rbButtonActionNone.checked = true;
 			break;
 		case SWFUpload.BUTTON_ACTION.SELECT_FILES:
 		default:
@@ -206,6 +232,11 @@ var FeaturesDemo = {
 		FeaturesDemo.txtUploadTarget.value = FeaturesDemo.SU.settings.upload_url;
 		FeaturesDemo.txtFlashHTML.value = FeaturesDemo.SU.getFlashHTML();
 		FeaturesDemo.txtMovieName.value = FeaturesDemo.SU.movieName;
+		FeaturesDemo.txtResizeWidth.value = "100";
+		FeaturesDemo.txtResizeHeight.value = "100";
+		FeaturesDemo.rbJPEG.checked = true;
+		FeaturesDemo.rbPNGchecked = false;
+		FeaturesDemo.txtQuality.value = "80";
 		FeaturesDemo.txtHTTPSuccess.value = FeaturesDemo.SU.settings.http_success.join(", ");
 		FeaturesDemo.txtAssumeSuccessTimeout.value = FeaturesDemo.SU.settings.assume_success_timeout;
 		FeaturesDemo.txtFilePostName.value = FeaturesDemo.SU.settings.file_post_name;
@@ -242,6 +273,23 @@ var FeaturesDemo = {
 		var file_id = FeaturesDemo.selQueue.value;
 		FeaturesDemo.SU.startUpload(file_id);
 	},
+	resizeSelectedFile: function () {
+		if (FeaturesDemo.selQueue.options.length === 0) {
+			alert("You must queue a file first");
+			return;
+		}
+		if (FeaturesDemo.selQueue.selectedIndex === -1) {
+			alert("Please select a file from the queue.");
+			return;
+		}
+
+		var file_id = FeaturesDemo.selQueue.value;
+		var width = FeaturesDemo.txtResizeWidth.value;
+		var height = FeaturesDemo.txtResizeHeight.value;
+		var encoding = FeaturesDemo.rbJPEG.checked ? SWFUpload.RESIZE_ENCODING.JPEG : SWFUpload.RESIZE_ENCODING.PNG;
+		var quality = FeaturesDemo.txtQuality.value;
+		FeaturesDemo.SU.startResizedUpload(file_id, width, height, encoding, quality);
+	},
 	stopUpload: function () {
 		FeaturesDemo.SU.stopUpload();
 	},
@@ -257,6 +305,28 @@ var FeaturesDemo = {
 
 		var file_id = FeaturesDemo.selQueue.value;
 		FeaturesDemo.SU.cancelUpload(file_id, triggerEvent);
+	},
+	requeueSelectedFile: function () {
+		if (FeaturesDemo.selQueue.options.length === 0) {
+			alert("You must queue a file first");
+			return;
+		}
+		if (FeaturesDemo.selQueue.selectedIndex === -1) {
+			alert("Please select a file from the queue.");
+			return;
+		}
+
+		var file_id = FeaturesDemo.selQueue.value;
+		if (FeaturesDemo.SU.requeueUpload(file_id)) {
+			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("REQUEUE: " + file_id + " requeued", "");
+
+			var file = FeaturesDemo.SU.getFile(file_id);
+			
+			FeaturesDemo.selQueue.value = file.id;
+			FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = file.id + ":  0%:" + file.name;
+		} else {
+			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("REQUEUE ERROR: " + file_id + " not requeued", "");
+		}
 	},
 	addFileParam: function () {
 		if (FeaturesDemo.selQueue.selectedIndex === -1) {
@@ -352,8 +422,8 @@ var FeaturesDemo = {
 		case FeaturesDemo.rbButtonActionStartUpload.checked:
 			FeaturesDemo.SU.setButtonAction(SWFUpload.BUTTON_ACTION.START_UPLOAD);
 			break;
-		case FeaturesDemo.rbButtonActionJavaScript.checked:
-			FeaturesDemo.SU.setButtonAction(SWFUpload.BUTTON_ACTION.JAVASCRIPT);
+		case FeaturesDemo.rbButtonActionNone.checked:
+			FeaturesDemo.SU.setButtonAction(SWFUpload.BUTTON_ACTION.NONE);
 			break;
 		}
 		

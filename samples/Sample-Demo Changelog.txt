@@ -2,6 +2,7 @@
 
  * --------- Version 2.5.0 -----------
  * + Added a resize demo
+ * = Updated Features Demo for new functionality
 
  * --------- Version 2.2.1 -----------
  * = Removed reference to swfupload.swfobject.js plugin in Forms demo
