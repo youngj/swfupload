@@ -114,8 +114,11 @@ package {
 		}
 		
 		private static function EscapeString(message:String):String {
-			var replacePattern:RegExp = /\\/g; //new RegExp("/\\/", "g");
-			return message.replace(replacePattern, "\\\\");
+			var replaceSlashPattern:RegExp = /\\/g;
+			var replaceNewLinePattern:RegExp = /\n/g;
+			var replaceCarraigeReturnPattern:RegExp = /\r/g;
+
+			return message.replace(replaceSlashPattern, "\\\\").replace(replaceNewLinePattern, "\\n").replace(replaceCarraigeReturnPattern, "\\r");
 		}
 		private static function EscapeArray(message_array:Array):Array {
 			var length:uint = message_array.length;
