@@ -5,10 +5,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-<title>SWFUpload Demos - Application Demo</title>
+<title>SWFUpload Demos - Resize Demo</title>
 <link href="../css/default.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="../swfupload/swfupload.js"></script>
-<script type="text/javascript" src="../swfupload/preview.js"></script>
 <script type="text/javascript" src="js/handlers.js"></script>
 <script type="text/javascript">
 		var swfu;
@@ -19,7 +18,7 @@
 				post_params: {"PHPSESSID": "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
-				file_size_limit : "10 MB",	// 2MB
+				file_size_limit : "10 MB",
 				file_types : "*.jpg;*.png",
 				file_types_description : "JPG Images; PNG Image",
 				file_upload_limit : 0,
@@ -54,7 +53,7 @@
 				},
 				
 				// Debug Settings
-				debug: true
+				debug: false
 			});
 		};
 	</script>
@@ -65,28 +64,14 @@
 	<div id="version">v2.5.0</div>
 </div>
 <div id="content">
-	<h2>Application Demo</h2>
-	<p>This demo shows how SWFUpload can behave like an AJAX application.  Images are uploaded by SWFUpload then some JavaScript is used to display the thumbnails without reloading the page.</p>
-	<?php
-	if( !function_exists("imagecopyresampled") ){
-		?>
-	<div class="message">
-		<h4><strong>Error:</strong> </h4>
-		<p>Application Demo requires GD Library to be installed on your system.</p>
-		<p>Usually you only have to uncomment <code>;extension=php_gd2.dll</code> by removing the semicolon <code>extension=php_gd2.dll</code> and making sure your extension_dir is pointing in the right place. <code>extension_dir = "c:\php\extensions"</code> in your php.ini file. For further reading please consult the <a href="http://ca3.php.net/manual/en/image.setup.php">PHP manual</a></p>
-	</div>
-	<?php
-	} else {
-	?>
+	<h2>Resize Demo</h2>
+	<p>This demo shows how SWFUpload can resize images on the client side.  Images resized before being uploaded to the server.  Then some JavaScript is used to download the thumbnail and display the resized image without reloading the page.</p>
 	<form>
-		<div style="width: 100px; float: right;"><span id="spanPreview"></span></div>
 		<div style="width: 180px; height: 18px; border: solid 1px #7FAAFF; background-color: #C5D9FF; padding: 2px;">
 			<span id="spanButtonPlaceholder"></span>
 		</div>
 	</form>
-	<?php
-	}
-	?>
+
 	<div id="divFileProgressContainer" style="height: 75px;"></div>
 	<div id="thumbnails"></div>
 </div>

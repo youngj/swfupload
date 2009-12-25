@@ -50,13 +50,8 @@ function uploadProgress(file, bytesLoaded) {
 
 		var progress = new FileProgress(file,  this.customSettings.upload_target);
 		progress.setProgress(percent);
-		if (percent === 100) {
-			progress.setStatus("Creating thumbnail...");
-			progress.toggleCancel(false, this);
-		} else {
-			progress.setStatus("Uploading...");
-			progress.toggleCancel(true, this);
-		}
+		progress.setStatus("Uploading...");
+		progress.toggleCancel(true, this);
 	} catch (ex) {
 		this.debug(ex);
 	}
@@ -69,7 +64,7 @@ function uploadSuccess(file, serverData) {
 		if (serverData.substring(0, 7) === "FILEID:") {
 			addImage("thumbnail.php?id=" + serverData.substring(7));
 
-			progress.setStatus("Thumbnail Created.");
+			progress.setStatus("Upload Complete.");
 			progress.toggleCancel(false);
 		} else {
 			addImage("images/error.gif");

@@ -22,8 +22,8 @@
 		exit(0);
 	}
 
-	header("Content-type: image/png") ;
-	header("Content-length: ".strlen($_SESSION["file_info"][$image_id]));
+	header("Content-type: image/jpeg") ;
+	header("Content-Length: ".strlen($_SESSION["file_info"][$image_id]));
 	echo $_SESSION["file_info"][$image_id];
 	exit(0);
 ?>

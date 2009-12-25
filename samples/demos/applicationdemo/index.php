@@ -18,9 +18,9 @@
 				post_params: {"PHPSESSID": "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
-				file_size_limit : "10 MB",	// 2MB
-				file_types : "*.jpg;*.png",
-				file_types_description : "JPG Images; PNG Image",
+				file_size_limit : "2 MB",	// 2MB
+				file_types : "*.jpg",
+				file_types_description : "JPG Images",
 				file_upload_limit : 0,
 
 				// Event Handler Settings - these functions as defined in Handlers.js
@@ -65,7 +65,7 @@
 </div>
 <div id="content">
 	<h2>Application Demo</h2>
-	<p>This demo shows how SWFUpload can behave like an AJAX application.  Images are uploaded by SWFUpload then some JavaScript is used to display the thumbnails without reloading the page.</p>
+	<p>This demo shows how SWFUpload can behave like an AJAX application.  Images are uploaded by SWFUpload and converted to thumbnails by the server.  Then some JavaScript is used to download and display the thumbnails without reloading the page.</p>
 	<?php
 	if( !function_exists("imagecopyresampled") ){
 		?>
