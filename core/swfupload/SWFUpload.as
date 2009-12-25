@@ -1364,7 +1364,6 @@ package {
 				
 				this.Debug("PrepareThumbnail(): Beginning image resizing.");
 				this.Debug("Settings: Width: " + resizeSettings["width"] + ", Height: " + resizeSettings["height"] + ", Encoding: " + (resizeSettings["encoding"] == this.ENCODER_PNG ? "PNG" : "JPEG") + ", Quality: " + resizeSettings["quality"] + ".");
-				this.Open_Handler(new Event(Event.OPEN, false, false));	// We want to trigger the first progress event before we start the resize
 				resizer.ResizeImage();
 			
 			} catch (ex:Object) {

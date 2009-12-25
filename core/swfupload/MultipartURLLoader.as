@@ -63,7 +63,7 @@
 		}
 
 		public function upload(request:URLRequest, uploadDataFieldName:String = "Filedata"):void {
-			// Note: We don't dispatch Event.OPEN because we are having the image resizer do that since resizing takes so much time
+			dispatchEvent(new Event(Event.OPEN, false, false));
 			
 			this._httpStatus = undefined;
 			this._request = request;

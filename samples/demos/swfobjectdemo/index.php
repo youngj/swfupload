@@ -63,7 +63,7 @@ SWFUpload.onload = function () {
 <body>
 <div id="header">
 	<h1 id="logo"><a href="../">SWFUpload</a></h1>
-	<div id="version">v2.2.0</div>
+	<div id="version">v2.5.0</div>
 </div>
 
 <div id="content">
