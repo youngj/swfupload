@@ -8,7 +8,7 @@
  * = Fixed speed plugin so it checks for a file before extending it
  * + Progress event manually fired for 100% if not fired by Flash
  * + mouseClick, mouseOver, mouseOut event and handler settings added
- * - Removed button_action.javascript and button_action_handler. These are replaced by the mouseClick event
+ * - Removed BUTTON_ACTION.JAVASCRIPT constant and button_action_handler. These are replaced by the mouseClick event
  * + Added proxy plugin
 
  
