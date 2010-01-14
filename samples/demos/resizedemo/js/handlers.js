@@ -1,5 +1,3 @@
-var uploadInProgress = false;
-
 function fileQueueError(file, errorCode, message) {
 	try {
 		var imageName = "error.gif";
@@ -37,8 +35,8 @@ function fileQueueError(file, errorCode, message) {
 
 function fileDialogComplete(numFilesSelected, numFilesQueued) {
 	try {
-		if (numFilesQueued > 0 && !uploadInProgress) {
-			ShowPreview(this.getQueueFile(0).id);
+		if (numFilesQueued > 0) {
+			this.startResizedUpload(this.getFile(0).ID, 100, 100, SWFUpload.RESIZE_ENCODING.JPEG, 100);
 		}
 	} catch (ex) {
 		this.debug(ex);
@@ -52,13 +50,8 @@ function uploadProgress(file, bytesLoaded) {
 
 		var progress = new FileProgress(file,  this.customSettings.upload_target);
 		progress.setProgress(percent);
-		if (percent === 100) {
-			progress.setStatus("Creating thumbnail...");
-			progress.toggleCancel(false, this);
-		} else {
-			progress.setStatus("Uploading...");
-			progress.toggleCancel(true, this);
-		}
+		progress.setStatus("Uploading...");
+		progress.toggleCancel(true, this);
 	} catch (ex) {
 		this.debug(ex);
 	}
@@ -71,7 +64,7 @@ function uploadSuccess(file, serverData) {
 		if (serverData.substring(0, 7) === "FILEID:") {
 			addImage("thumbnail.php?id=" + serverData.substring(7));
 
-			progress.setStatus("Thumbnail Created.");
+			progress.setStatus("Upload Complete.");
 			progress.toggleCancel(false);
 		} else {
 			addImage("images/error.gif");
@@ -91,13 +84,12 @@ function uploadComplete(file) {
 	try {
 		/*  I want the next upload to continue automatically so I'll call startUpload here */
 		if (this.getStats().files_queued > 0) {
-			ShowPreview(this.getQueueFile(0).id);
+			this.startResizedUpload(this.getFile(0).ID, 100, 100, SWFUpload.RESIZE_ENCODING.JPEG, 100);
 		} else {
-			var progress = new FileProgress(file, this.customSettings.upload_target);
+			var progress = new FileProgress(file,  this.customSettings.upload_target);
 			progress.setComplete();
 			progress.setStatus("All images received.");
 			progress.toggleCancel(false);
-			uploadInProgress = false;
 		}
 	} catch (ex) {
 		this.debug(ex);
@@ -144,33 +136,6 @@ function uploadError(file, errorCode, message) {
 		this.debug(ex3);
 	}
 
-}
-
-var preview = null;
-function ShowPreview(id) {
-	uploadInProgress = true;
-	if (preview === null) {
-		preview = new SWFUpload.Preview({
-			flash_url : "../swfupload/preview.swf",
-			preview_placeholder_id : "spanPreview",
-			preview_loaded_handler : function () { PreviewLoadedHandler.call(this, id); },
-			preview_complete_handler : ShowPreviewComplete,
-			debug : true,
-			width : 100,
-			height: 100,
-			resize_to_fit : true
-		});
-	} else {
-		PreviewLoadedHandler.call(preview, id);
-	}
-}
-function PreviewLoadedHandler(id) {
-	//this.getPreview(swfu.movieName, id, this.settings.width, this.settings.height);
-	swfu.requestImage(this.movieName, id);
-}
-function ShowPreviewComplete() {
-	this.debug("Preview Complete");
-	swfu.startResizedUpload(swfu.getQueueFile(0).id, 100, 100, SWFUpload.RESIZE_ENCODING.JPEG, 100);
 }
 
 

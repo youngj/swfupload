@@ -6,6 +6,8 @@
 	session_start();
 
 	// The Demos don't save files
+
+	echo "Isn't it nice to return content!";
 	
 	exit(0);
 ?>
