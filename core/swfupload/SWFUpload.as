@@ -1556,14 +1556,14 @@ package {
 				for (key in this.uploadPostObject) {
 					this.Debug("Global URL Item: " + key + "=" + this.uploadPostObject[key]);
 					if (this.uploadPostObject.hasOwnProperty(key)) {
-						pairs.push(escape(key) + "=" + escape(this.uploadPostObject[key]));
+						pairs.push(encodeURIComponent(key) + "=" + encodeURIComponent(this.uploadPostObject[key]));
 					}
 				}
 
 				for (key in file_post) {
 					this.Debug("File Post Item: " + key + "=" + file_post[key]);
 					if (file_post.hasOwnProperty(key)) {
-						pairs.push(escape(key) + "=" + escape(file_post[key]));
+						pairs.push(encodeURIComponent(key) + "=" + encodeURIComponent(file_post[key]));
 					}
 				}
 				
