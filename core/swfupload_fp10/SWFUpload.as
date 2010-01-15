@@ -47,7 +47,7 @@ package {
 		}
 		
 
-		private const build_number:String = "2.5.0 2009-12-23 Beta 1";
+		private const build_number:String = "2.5.0 2010-01-15 Beta 2";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -1201,7 +1201,7 @@ package {
 
 			this.sizeTimer = new Timer(10, 0);
 			this.sizeTimer.addEventListener(TimerEvent.TIMER, function ():void {
-				this.Debug("Stage:" + this.stage.stageWidth + " by " + this.stage.stageHeight);
+				//self.Debug("Stage:" + self.stage.stageWidth + " by " + self.stage.stageHeight);
 				if (self.stage.stageWidth > 0 || self.stage.stageHeight > 0) {
 					this.removeEventListener(TimerEvent.TIMER, arguments.callee);
 					this.stop();

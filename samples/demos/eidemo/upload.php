@@ -7,5 +7,6 @@
 
 	// The Demos don't save files
 	
+	echo "Make sure Flash Player on OS X works";
 	exit(0);
 ?>

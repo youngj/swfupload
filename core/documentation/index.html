@@ -151,6 +151,8 @@
 				<li><a href="#events">Events</a>
 					<ol>
 						<li><a href="#flashReady">flashReady</a></li>
+						<li><a href="#swfUploadPreload">swfUploadPreload</a></li>
+						<li><a href="#swfUploadLoadFailed">swfUploadLoadFailed</a></li>
 						<li><a href="#swfUploadLoaded">swfUploadLoaded</a></li>
 						<li><a href="#buttonAction">buttonAction</a></li>
 						<li><a href="#fileDialogStart">fileDialogStart</a></li>
@@ -169,6 +171,7 @@
 					<ol>
 						<li><a href="#settingsobject">Settings Object</a></li>
 						<li><a href="#settingsdescription">Settings Description</a></li>
+						<li><a href="#supportobject">Support Object</a></li>
 						<li><a href="#fileobject">File Object</a></li>
 						<li><a href="#statsobject">Stats Object</a></li>
 					</ol>
@@ -269,7 +272,7 @@
 	<ol>
 		<li>Initialization and Settings (JavaScript)</li>
 		<li>JavaScript library: SWFUpload.js</li>
-		<li>Flash Control: swfupload.swf</li>
+		<li>Flash Control: swfupload.swf &amp; swfupload_fp9.swf</li>
 		<li>The Event Handlers (JavaScript)</li>
 	</ol>
 	
@@ -288,6 +291,7 @@ window.onload = function () {
 	swfu = new SWFUpload({
 		upload_url : "http://www.swfupload.org/upload.php",
 		flash_url : "http://www.swfupload.org/swfupload.swf",
+		flash9_url : "http://www.swfupload.org/swfupload_fp9.swf",
 		file_size_limit : "20 MB"
 	});
 };</code>
@@ -300,6 +304,7 @@ window.onload = function () {
 	var settings_object = {
 		upload_url : "http://www.swfupload.org/upload.php",
 		flash_url : "http://www.swfupload.org/swfupload.swf",
+		flash9_url : "http://www.swfupload.org/swfupload_fp9.swf",
 		file_size_limit : "20 MB"
 	};
 	
@@ -319,18 +324,23 @@ window.onload = function () {
 	<p><strong>Example:</strong> Initializing SWFUpload with the required settings.</p>
 	<code>var swfu = new SWFUpload({
 	upload_url : "http://www.swfupload.org/upload.php",
-	flash_url : "http://www.swfupload.org/swfupload_f9.swf",
+	flash_url : "http://www.swfupload.org/swfupload.swf",
+	flash9_url : "http://www.swfupload.org/swfupload_fp9.swf",
 	button_placeholder_id : "spanSWFUploadButton"
 });
 </code>
 
 	<h3>Flash Control</h3>
-	<p>The SWFUpload JavaScript library dynamically loads the Flash Control (swfupload.swf).</p>
+	<p>The SWFUpload JavaScript library dynamically loads the Flash Control (swfupload.swf/swfupload_fp9.swf).</p>
 	
 	<p>The location of the Flash Control file must be provided in the SWFUpload settings object during setup.</p>
 	
 	<p>The Flash Control is a small Flash Movie that handles file browsing, validation and upload.  It appears on the page as
 	a button and communicates with JavaScript to notify the browser of upload status and other events.</p>
+	
+	<p>New ActionScript syntax and classes require us to target Flash Player 10 and Flash Player 9 separately.  SWFUpload will detect the installed version of flash and load the appropriate Flash Control.</p>
+	
+	<p>Use the flash_url and flash9_url settings to defined custom locations and file names for the swfupload.swf and swfupload_fp9.swf files.</p>
 	
 	<h3>The Event Handlers</h3>
 	
@@ -363,6 +373,7 @@ var myCustomUploadSuccessEventHandler = function (file, server_data, receivedRes
 var swfu = new SWFUpload({
 	upload_url : "http://www.swfupload.org/upload.php",
 	flash_url : "http://www.swfupload.org/swfupload.swf",
+	flash9_url : "http://www.swfupload.org/swfupload_fp9.swf",
 	file_size_limit : "200 MB",
 	
 	upload_start_handler : myCustomUploadStartEventHandler,
@@ -707,6 +718,17 @@ function uploadSuccess(file, serverData, receivedResponse) {
 	<p>flashReady is an internal event that should not be overwritten.  It is called by the Flash Control to notify SWFUpload that the Flash
 	movie has loaded and is ready to accept commands.</p>
 	
+	<h4><a name="swfUploadPreload"></a><span class="function">swfUploadPreload()</span></h4>
+	<p>
+		The swfUploadPreload event is fired after SWFUpload has determined what features are available but before the Flash Movie is loaded.  Returning false from this event prevents SWFUpload from loading.
+		This event can be used to gracefully degrade if the client's browser does not support the features needed.
+	</p>
+	<p>Set using the swfupload_preload_handler setting.</p>
+
+	<h4><a name="swfUploadLoadFailed"></a><span class="function">swfUploadLoadFailed()</span></h4>
+	<p>The xxxxxx event is fired if SWFUpload determines it cannot load or an exception occurs while added the Flash Movie to the document.  SWFUpload may not be able to load because the Flash Player is not installed or a version older than 9.0.28 is installed</p>
+	<p>Set using the swfupload_load_failed_handler setting.</p>
+
 	<h4><a name="swfUploadLoaded"></a><span class="function">swfUploadLoaded()</span></h4>
 	<p>The swfUploadLoaded event is fired by flashReady.  It is settable.  swfUploadLoaded is called to let you know that it is safe to call SWFUpload methods.</p>
 	<p>Set using the swfupload_loaded_handler setting.</p>
@@ -802,6 +824,7 @@ function uploadSuccess(file, serverData, receivedResponse) {
 	<code>{
 	upload_url : "http://www.swfupload.org/upload.php",
 	flash_url : "http://www.swfupload.org/swfupload.swf",
+	flash9_url : "http://www.swfupload.org/swfupload_fp9.swf",
 
 	file_post_name : "Filedata",
 	post_params : {
@@ -962,6 +985,11 @@ function uploadSuccess(file, serverData, receivedResponse) {
 		instantiated.  Relative URLs are relative to the page URL.
 	</p>
 	
+	<h5>flash9_url</h5>
+	<p>
+		<strong>(Added in v2.5.0)</strong> the full, absolute, or relative URL to the Flash Control swf file that supports Flash Player 9.	
+	</p>
+	
 	<h5>flash_width</h5>
 	<p>
 		<strong>(Removed in v2.1.0)</strong> Defines the width of the HTML element that contains the flash.  Some browsers do not function correctly if this setting is less than 1 px.
@@ -1061,7 +1089,7 @@ swfu.customSettings["My Setting"] = "This is my new setting";
 swfu.customSetting.myothersetting = "another new value";
 swfu.customSetting.integer_setting += 25;
 swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
-	
+
 	<h5>Event Handlers</h5>
 	<p>
 		The remaining settings define the event handlers called by SWFUpload during its operation.  JavaScript functions should
@@ -1069,7 +1097,13 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	</p>
 	
 	
-	
+	<h4><a name="supportobject"></a>Support Object</h4>
+	<p>The support object is a property of a SWFUpload instance and identifies what features SWFUpload can support based on the Flash Player version installed in the client browser.</p>
+	<code>{
+	load : bool,			// Indicates if SWFupload is able to load based of Flash Player version
+	imageResize : bool,		// Indicates of Flash Player 10 or later is installed and SWFUpload supports client side resizing and uploading of images.
+}</code>
+
 	<h4><a name="fileobject"></a>File Object</h4>
 	<p>The file object is passed to several event handlers.  It contains information about the file.  Some operating systems do not fill in all the values (this
 	is especially true for the createdate and modificationdate values).</p>

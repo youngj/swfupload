@@ -26,6 +26,8 @@
 				// Event Handler Settings - these functions as defined in Handlers.js
 				//  The handlers are not part of SWFUpload but are part of my website and control how
 				//  my website reacts to the SWFUpload events.
+				swfupload_preload_handler : preLoad,
+				swfupload_load_failed_handler : loadFailed,
 				file_queue_error_handler : fileQueueError,
 				file_dialog_complete_handler : fileDialogComplete,
 				upload_progress_handler : uploadProgress,
@@ -47,6 +49,7 @@
 				
 				// Flash Settings
 				flash_url : "../swfupload/swfupload.swf",
+				flash9_url : "../swfupload/swfupload_FP9.swf",
 
 				custom_settings : {
 					upload_target : "divFileProgressContainer"

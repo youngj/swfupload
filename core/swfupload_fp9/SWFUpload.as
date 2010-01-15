@@ -1164,12 +1164,12 @@ package {
 
 			this.sizeTimer = new Timer(10, 0);
 			this.sizeTimer.addEventListener(TimerEvent.TIMER, function ():void {
-				this.Debug("Stage:" + this.stage.stageWidth + " by " + this.stage.stageHeight);
+				//self.Debug("Stage:" + self.stage.stageWidth + " by " + self.stage.stageHeight);
 				if (self.stage.stageWidth > 0 || self.stage.stageHeight > 0) {
-					this.removeEventListener(TimerEvent.TIMER, arguments.callee);
-					this.stop();
-					self.HandleStageResize(null);
+					self.sizeTimer.stop();
+					self.sizeTimer.removeEventListener(TimerEvent.TIMER, arguments.callee);
 					self.sizeTimer = null;
+					self.HandleStageResize(null);
 				}
 			} );
 			this.sizeTimer.start();

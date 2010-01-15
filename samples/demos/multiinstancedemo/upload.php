@@ -18,4 +18,5 @@
 		exit(0);
 	}
 	
+	echo "Make sure Flash Player on OS X works";
 ?>

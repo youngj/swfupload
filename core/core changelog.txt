@@ -10,6 +10,12 @@
  * + mouseClick, mouseOver, mouseOut event and handler settings added
  * - Removed BUTTON_ACTION.JAVASCRIPT constant and button_action_handler. These are replaced by the mouseClick event
  * + Added proxy plugin
+ * - Removed swfobject plugin
+ * + Integrated swfobject with core code
+ * + Added swfupload_preload_handler event/setting
+ * + Added swfupload_load_failed_handler event/setting
+ * + Added flash9_url to support SWF split to support Flash Player 9 and Flash Player 10
+ * = Fixed param encoding issue
 
  
  * --------- Version 2.2.1-----------

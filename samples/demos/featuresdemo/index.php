@@ -45,6 +45,8 @@
 				button_text_left_padding : 100,
 				
 				// Event Handler Settings
+				swfupload_preload_handler : FeaturesDemoHandlers.swfUploadPreload,
+				swfupload_load_failed_handler : FeaturesDemoHandlers.swfUploadLoadFailed,
 				swfupload_loaded_handler : FeaturesDemoHandlers.swfUploadLoaded,
 				mouse_click_handler : FeaturesDemoHandlers.mouseClick,
 				mouse_over_handler : FeaturesDemoHandlers.mouseOver,
@@ -63,6 +65,7 @@
 				
 				// Flash Settings
 				flash_url : "../swfupload/swfupload.swf",	// Relative to this file
+				flash9_url : "../swfupload/swfupload_fp9.swf",	// Relative to this file
 
 				// Debug Settings
 				debug: true		// For the purposes of this demo I wan't debug info shown

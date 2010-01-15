@@ -34,6 +34,8 @@
 				file_queue_limit : 0,
 
 				// Event Handler Settings (all my handlers are in the Handler.js file)
+				swfupload_preload_handler : preLoad,
+				swfupload_load_failed_handler : loadFailed,
 				file_dialog_start_handler : fileDialogStart,
 				file_queued_handler : fileQueued,
 				file_queue_error_handler : fileQueueError,
@@ -52,7 +54,8 @@
 				
 				// Flash Settings
 				flash_url : "../swfupload/swfupload.swf",
-				
+				flash9_url : "../swfupload/swfupload_fp9.swf",
+			
 
 				custom_settings : {
 					progressTarget : "fsUploadProgress1",
@@ -76,6 +79,8 @@
 				file_queue_limit : "5",
 
 				// Event Handler Settings (all my handlers are in the Handler.js file)
+				swfupload_preload_handler : preLoad,
+				swfupload_load_failed_handler : loadFailed,
 				file_dialog_start_handler : fileDialogStart,
 				file_queued_handler : fileQueued,
 				file_queue_error_handler : fileQueueError,
@@ -94,6 +99,7 @@
 				
 				// Flash Settings
 				flash_url : "../swfupload/swfupload.swf",
+				flash9_url : "../swfupload/swfupload_fp9.swf",
 
 				swfupload_element_id : "flashUI2",		// Setting from graceful degradation plugin
 				degraded_element_id : "degradedUI2",	// Setting from graceful degradation plugin

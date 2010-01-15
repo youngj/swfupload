@@ -1,4 +1,13 @@
 var formChecker = null;
+function preLoad() {
+	if (!this.support.loading) {
+		alert("You need the Flash Player 9.028 or above to use SWFUpload.");
+		return false;
+	}
+}
+function loadFailed() {
+	alert("Something went wrong while loading SWFUpload. If this were a real application we'd clean up and then give you an alternative");
+}
 function swfUploadLoaded() {
 	var btnSubmit = document.getElementById("btnSubmit");
 	

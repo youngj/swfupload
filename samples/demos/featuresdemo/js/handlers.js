@@ -1,6 +1,14 @@
 var FeaturesDemoHandlers = {
+	swfUploadPreload : function () {
+
+	},
+
+	swfUploadLoadFailed : function () {
+		document.getElementById("spanLoadStatus").innerHTML = "failed loading";
+	},
+	
 	swfUploadLoaded : function () {
-		FeaturesDemo.start(this);  // This refers to the SWFObject because SWFUpload calls this with .apply(this).
+		FeaturesDemo.start(this);  // 'this' refers to the SWFObject because SWFUpload calls this with .apply(this).
 	},
 	
 	mouseClick : function () {

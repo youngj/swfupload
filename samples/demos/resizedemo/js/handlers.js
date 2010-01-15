@@ -1,3 +1,16 @@
+function preLoad() {
+	if (!this.support.loading) {
+		alert("You need the Flash Player to use SWFUpload.");
+		return false;
+	} else if (!this.support.imageResize) {
+		alert("You need Flash Player 10 to upload resized images.");
+		return false;
+	}
+}
+function loadFailed() {
+	alert("Something went wrong while loading SWFUpload. If this were a real application we'd clean up and then give you an alternative");
+}
+
 function fileQueueError(file, errorCode, message) {
 	try {
 		var imageName = "error.gif";

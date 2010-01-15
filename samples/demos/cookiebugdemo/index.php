@@ -14,6 +14,7 @@
 	window.onload = function() {
 		var settings = {
 			flash_url : "../swfupload/swfupload.swf",
+			flash9_url : "../swfupload/swfupload_FP9.swf",
 			upload_url: "upload.php",
 			file_size_limit : "1 MB",
 
@@ -23,6 +24,8 @@
 			button_width: 61,
 			button_height: 22,
 
+			swfupload_preload_handler : preLoad,
+			swfupload_load_failed_handler : loadFailed,
 			file_dialog_complete_handler : fileDialogComplete,
 			upload_success_handler : uploadSuccess
 		};

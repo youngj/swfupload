@@ -32,6 +32,7 @@
 		window.onload = function() {
 			var settings = {
 				flash_url : "../swfupload/swfupload.swf",
+				flash9_url : "../swfupload/swfupload_fp9.swf",
 				upload_url: "upload.php",
 				file_size_limit : "100 MB",
 				file_types : "*.*",
@@ -50,6 +51,8 @@
 				moving_average_history_size: 40,
 				
 				// The event handler functions are defined in handlers.js
+				swfupload_preload_handler : preLoad,
+				swfupload_load_failed_handler : loadFailed,
 				file_queued_handler : fileQueued,
 				file_dialog_complete_handler: fileDialogComplete,
 				upload_start_handler : uploadStart,

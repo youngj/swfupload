@@ -11,5 +11,6 @@
 		echo "There was a problem with the upload";
 	}
 	
+	echo "Make sure Flash Player on OS X works";
 	exit(0);
 ?>

@@ -31,6 +31,8 @@
 				file_dialog_complete_handler : fileDialogComplete,
 				
 				//upload_start_handler : uploadStart,	// I could do some client/JavaScript validation here, but I don't need to.
+				swfupload_preload_handler : preLoad,
+				swfupload_load_failed_handler : loadFailed,
 				upload_progress_handler : uploadProgress,
 				upload_error_handler : uploadError,
 				upload_success_handler : uploadSuccess,
@@ -44,6 +46,7 @@
 				
 				// Flash Settings
 				flash_url : "../swfupload/swfupload.swf",
+				flash9_url : "../swfupload/swfupload_fp9.swf",
 
 				custom_settings : {
 					progress_target : "fsUploadProgress",

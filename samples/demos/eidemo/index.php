@@ -12,6 +12,7 @@
 		window.onload = function() {
 			var settings = {
 				flash_url : "../swfupload/swfupload.swf",
+				flash9_url : "../swfupload/swfupload_fp9.swf",
 				upload_url: "upload.php",
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 				file_size_limit : "100 MB",
@@ -36,6 +37,8 @@
 				button_text_top_padding: 3,
 				
 				// The event handler functions are defined in handlers.js
+				swfupload_preload_handler : preLoad,
+				swfupload_load_failed_handler : loadFailed,
 				file_queued_handler : fileQueued,
 				file_queue_error_handler : fileQueueError,
 				upload_start_handler : uploadStart,

@@ -11,7 +11,6 @@
 </style>
 
 <script type="text/javascript" src="../swfupload/swfupload.js"></script>
-<script type="text/javascript" src="../swfupload/swfupload.swfobject.js"></script>
 <script type="text/javascript" src="../swfupload/swfupload.queue.js"></script>
 <script type="text/javascript" src="js/fileprogress.js"></script>
 <script type="text/javascript" src="js/handlers.js"></script>
@@ -21,6 +20,7 @@ var swfu;
 SWFUpload.onload = function () {
 	var settings = {
 		flash_url : "../swfupload/swfupload.swf",
+		flash9_url : "../swfupload/swfupload_fp9.swf",
 		upload_url: "upload.php",
 		file_size_limit : "100 MB",
 		file_types : "*.*",
@@ -41,6 +41,8 @@ SWFUpload.onload = function () {
 		button_cursor: SWFUpload.CURSOR.HAND,
 
 		// The event handler functions are defined in handlers.js
+		swfupload_preload_handler : swfUploadPreLoad,
+		swfupload_load_failed_handler : swfUploadLoadFailed
 		swfupload_loaded_handler : swfUploadLoaded,
 		file_queued_handler : fileQueued,
 		file_queue_error_handler : fileQueueError,
@@ -52,10 +54,6 @@ SWFUpload.onload = function () {
 		upload_complete_handler : uploadComplete,
 		queue_complete_handler : queueComplete,	// Queue plugin event
 		
-		// SWFObject settings
-		minimum_flash_version : "9.0.28",
-		swfupload_pre_load_handler : swfUploadPreLoad,
-		swfupload_load_failed_handler : swfUploadLoadFailed
 	};
 
 	swfu = new SWFUpload(settings);
