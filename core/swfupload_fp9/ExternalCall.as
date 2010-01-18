@@ -117,8 +117,9 @@ package {
 			var replaceSlashPattern:RegExp = /\\/g;
 			var replaceNewLinePattern:RegExp = /\n/g;
 			var replaceCarraigeReturnPattern:RegExp = /\r/g;
+			var replaceNullPattern:RegExp = /\0/g;
 
-			return message.replace(replaceSlashPattern, "\\\\").replace(replaceNewLinePattern, "\\n").replace(replaceCarraigeReturnPattern, "\\r");
+			return message.replace(replaceSlashPattern, "\\\\").replace(replaceNewLinePattern, "\\n").replace(replaceCarraigeReturnPattern, "\\r").replace(replaceNullPattern, "\\0");
 		}
 		private static function EscapeArray(message_array:Array):Array {
 			var length:uint = message_array.length;

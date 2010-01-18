@@ -32,7 +32,6 @@ package {
 	import flash.ui.Mouse;
 	import flash.utils.ByteArray;
 	import flash.utils.Timer;
-	import flash.utils.getTimer;
 
 	import FileItem;
 	import ExternalCall;
@@ -394,7 +393,6 @@ package {
 				this.SetButtonCursor(this.BUTTON_CURSOR_ARROW);
 			}
 
-			
 			this.SetupExternalInterface();
 			
 			this.Debug("SWFUpload Init Complete");
@@ -470,7 +468,6 @@ package {
 				this.Debug("Callbacks where not set: " + ex.message);
 				return;
 			}
-			
 		}
 		
 		/* *****************************************

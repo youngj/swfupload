@@ -88,8 +88,6 @@ package {
 		private var uploadComplete_Callback:String;
 		
 		private var debug_Callback:String;
-		private var testExternalInterface_Callback:String;
-		private var cleanUp_Callback:String;
 		
 		private var mouseOut_Callback:String;
 		private var mouseOver_Callback:String;
@@ -478,8 +476,6 @@ package {
 				this.Debug("Callbacks where not set: " + ex.message);
 				return;
 			}
-			
-			ExternalCall.Simple(this.cleanUp_Callback);
 		}
 		
 		/* *****************************************
@@ -1164,10 +1160,10 @@ package {
 			this.sizeTimer.addEventListener(TimerEvent.TIMER, function ():void {
 				//self.Debug("Stage:" + self.stage.stageWidth + " by " + self.stage.stageHeight);
 				if (self.stage.stageWidth > 0 || self.stage.stageHeight > 0) {
-					this.removeEventListener(TimerEvent.TIMER, arguments.callee);
-					this.stop();
-					self.HandleStageResize(null);
+					self.sizeTimer.stop();
+					self.sizeTimer.removeEventListener(TimerEvent.TIMER, arguments.callee);
 					self.sizeTimer = null;
+					self.HandleStageResize(null);
 				}
 			} );
 			this.sizeTimer.start();

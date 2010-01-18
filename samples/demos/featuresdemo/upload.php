@@ -45,7 +45,7 @@
 	<?php
 		foreach ($_POST as $name => $value) {
 			echo "<li>";
-			echo htmlspecialchars($name) . "=" . htmlspecialchars($value);
+			echo htmlspecialchars($name) . "=" . substr(htmlspecialchars($value), 0, 100);
 			echo "</li>\n";
 		}
 	?>
