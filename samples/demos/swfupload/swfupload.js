@@ -392,9 +392,6 @@ SWFUpload.prototype.destroy = function () {
 		// Make sure Flash is done before we try to remove it
 		this.cancelUpload(null, false);
 		
-		// Stop the external interface check from running
-		this.callFlash("StopExternalInterfaceCheck");
-		
 		movieElement = this.cleanUp();
 
 		// Remove the SWFUpload DOM nodes
@@ -880,15 +877,6 @@ SWFUpload.prototype.unescapeFilePostParams = function (file) {
 	return file;
 };
 
-// Private: Called by Flash to see if JS can call in to Flash (test if External Interface is working)
-SWFUpload.prototype.testExternalInterface = function () {
-	try {
-		return this.callFlash("TestExternalInterface");
-	} catch (ex) {
-		return false;
-	}
-};
-
 // Private: This event is called by SWFUpload Init after we've determined what the user's Flash Player supports.
 // Use the swfupload_preload_handler event setting to execute custom code when SWFUpload has loaded.
 // Return false to prevent SWFUpload from loading and allow your script to do something else if your required feature is
@@ -914,15 +902,13 @@ SWFUpload.prototype.swfuploadPreload = function () {
 // Use the swfupload_loaded_handler event setting to execute custom code when SWFUpload has loaded.
 SWFUpload.prototype.flashReady = function () {
 	// Check that the movie element is loaded correctly with its ExternalInterface methods defined
-	var movieElement = this.getMovieElement();
+	var movieElement = 	this.cleanUp();
 
 	if (!movieElement) {
 		this.debug("Flash called back ready but the flash movie can't be found.");
 		return;
 	}
 
-	//this.cleanUp();
-	
 	this.queueEvent("swfupload_loaded_handler");
 };
 

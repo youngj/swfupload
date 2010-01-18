@@ -282,9 +282,6 @@ package {
 
 			this.debug_Callback                 = "SWFUpload.instances[\"" + this.movieName + "\"].debug";
 
-			this.testExternalInterface_Callback = "SWFUpload.instances[\"" + this.movieName + "\"].testExternalInterface";
-			this.cleanUp_Callback               = "SWFUpload.instances[\"" + this.movieName + "\"].cleanUp";
-			
 			this.mouseOut_Callback              = "SWFUpload.instances[\"" + this.movieName + "\"].mouseOut";
 			this.mouseOver_Callback             = "SWFUpload.instances[\"" + this.movieName + "\"].mouseOver";
 			this.mouseClick_Callback            = "SWFUpload.instances[\"" + this.movieName + "\"].mouseClick";
@@ -412,16 +409,8 @@ package {
 			this.Debug("SWFUpload Init Complete");
 			this.PrintDebugInfo();
 
-			if (ExternalCall.Bool(this.testExternalInterface_Callback)) {
-				ExternalCall.Simple(this.flashReady_Callback);
-				this.hasCalledFlashReady = true;
-			}
-			
-			// Start periodically checking the external interface
-			this.restoreExtIntTimer = new Timer(1000, 0);
-			this.restoreExtIntTimer.addEventListener(TimerEvent.TIMER, function ():void { self.CheckExternalInterface();} );
-			this.restoreExtIntTimer.start();
-			
+			ExternalCall.Simple(this.flashReady_Callback);
+			this.hasCalledFlashReady = true;
 		}
 
 		private function HandleStageResize(e:Event):void {
@@ -445,31 +434,7 @@ package {
 				}
 			} catch (ex:Error) {}
 		}
-		
-		// Used to periodically check that the External Interface functions are still working
-		private function CheckExternalInterface():void {
-			if (!ExternalCall.Bool(this.testExternalInterface_Callback)) {
-				this.SetupExternalInterface();
-				this.Debug("ExternalInterface reinitialized");
-				if (!this.hasCalledFlashReady) {
-					ExternalCall.Simple(this.flashReady_Callback);
-					this.hasCalledFlashReady = true;
-				}
-			}
-		}
-		
-		private function StopExternalInterfaceCheck():void {
-			if (this.restoreExtIntTimer) {
-				this.restoreExtIntTimer.start();
-				this.restoreExtIntTimer = null;
-			}
-		}
-		
-		// Called by JS to see if it can access the external interface
-		private function TestExternalInterface():Boolean {
-			return true;
-		}
-		
+
 		private function SetupExternalInterface():void {
 			try {
 				ExternalInterface.addCallback("SelectFile", this.SelectFile);
@@ -509,10 +474,6 @@ package {
 				ExternalInterface.addCallback("SetButtonAction", this.SetButtonAction);
 				ExternalInterface.addCallback("SetButtonDisabled", this.SetButtonDisabled);
 				ExternalInterface.addCallback("SetButtonCursor", this.SetButtonCursor);
-
-				ExternalInterface.addCallback("TestExternalInterface", this.TestExternalInterface);
-				ExternalInterface.addCallback("StopExternalInterfaceCheck", this.StopExternalInterfaceCheck);
-				
 			} catch (ex:Error) {
 				this.Debug("Callbacks where not set: " + ex.message);
 				return;
