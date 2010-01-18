@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-<title>SWFUpload Demos - SWFObject Demo</title>
+<title>SWFUpload Demos - Graceful Degradation Demo</title>
 <link href="../css/default.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="../swfupload/swfupload.js"></script>
 <script type="text/javascript" src="../swfupload/swfupload.queue.js"></script>
@@ -49,7 +49,7 @@ SWFUpload.onload = function () {
 		upload_error_handler : uploadError,
 		upload_success_handler : uploadSuccess,
 		upload_complete_handler : uploadComplete,
-		queue_complete_handler : queueComplete,	// Queue plugin event
+		queue_complete_handler : queueComplete	// Queue plugin event
 		
 	};
 
@@ -68,16 +68,24 @@ SWFUpload.onload = function () {
 
 	<h2>SWFObject Demo</h2>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
-		<p> This page demonstrates the SWFObject plugin.  Do each of the following (one at a time) to see the plugin work: </p>
-			<ul>
-				<li>Uninstall your Flash Player or install a version less than 9.0.28</li>
-				<li>Cause the SWF file to fail to load by deleting or renaming swfupload.swf (simulating a very slow or failed download)</li>
-				<li>Disable JavaScript</li>
-			</ul>
+		<p>This page demonstrates SWFUpload's use of the swfobject library to gracefully degrade the page.</p>
 		<p>
-			Each of these tests demontrate how these issues can be handled by SWFUpload and the SWFObject libraries.
+			SWFUpload provides a variety of events to notify your application whether SWFUpload will be able to load properly.
+			Rather than SWFUpload simply degrading automatically it leaves complete control in the hands of the developer to degrade
+			in a way appropriate to the application.
 		</p>
-		<div id="divSWFUploadUI">
+		
+		<p>Do each of the following (one at a time) to see the plugin work: </p>
+		<ul>
+			<li>Uninstall your Flash Player or install a version less than 9.0.28</li>
+			<li>Cause the SWF file to fail to load by deleting or renaming swfupload.swf (simulating a very slow or failed download)</li>
+			<li>Disable JavaScript</li>
+		</ul>
+		<p>
+			Each of these tests demontrate how these issues can be handled by SWFUpload and the swfobject libraries.
+		</p>
+		
+		<div id="divSWFUploadUI" style="margin-top: 20px;">
 			<div class="fieldset  flash" id="fsUploadProgress">
 			<span class="legend">Upload Queue</span>
 			</div>

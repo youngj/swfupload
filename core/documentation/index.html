@@ -78,7 +78,7 @@
 
 <body>
 	<h1>SWFUpload v2.5.0 Documentation</h1>
-	<h2>TOC</h2>
+	<h2>Table of Contents</h2>
 	<ol>
 		<li><a href="#swfupload">SWFUpload</a></li>
 		<li><a href="#v2">SWFUpload Version 2</a></li>
@@ -99,6 +99,7 @@
 						<li><a href="#button_cursor">CURSOR</a></li>
 						<li><a href="#button_window_mode">BUTTON_WINDOW_MODE</a></li>
 						<li><a href="#resize_encoding">RESIZE_ENCODING</a></li>
+						<li><a href="#onload">onload</a></li>
 					</ol>
 				</li>
 				<li><a href="#properties">Properties</a>
@@ -487,6 +488,14 @@ var swfu = new SWFUpload({
 		<li>PNG - The PNG encoding format</li>
 	</ul>
 		
+	<h4><a name="onload"></a>SWFUpload.onload</h4>
+	<p>onload is a function that will be executed by swfobject's addDOMLoadEvent.  You can use onload to execute your script as soon as the page is ready.  You should only use onload if you are not already using some other method (such as jQuery's Ready or Prototype's dom:loaded).</p>
+	<code>SWFUpload.onload = function () {
+	new SWFUpload(settingsObject);	
+}</code>
+
+	<p>The above example will initialize SWFUpload using the browser's earliest load event. In most browsers this is the DOMReady event which often executes much sooner than the window.onload event.</p>
+
 	<h3><a name="properties"></a>Properties</h3>
 	<p>
 		The following list of properties is intended for your use as described below. Using other properties or
