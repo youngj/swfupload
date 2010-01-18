@@ -584,13 +584,21 @@ function uploadSuccess(file, serverData, receivedResponse) {
 	<h4><a name="startResizedUpload"></a>void startResizedUpload(<span class="parameter">file_id</span>, <span class="parameter">width</span>, <span class="parameter">height</span>, <span class="parameter">encoding</span>, <span class="parameter">quality</span>)</h4>
 	<p>startResizedUpload causes the file specified by the file_id parameter to start the upload process.  SWFUpload attempts to resize the file (assuming it is an image format supported by Flash).  If the image cannot be resized an uploadError occurs.</p>
 	
-	<p>The width and height parameters specify the maximum size the resized image can be in one dimension.  The other dimension is scaled to maintain the image aspect ratio.</p>
+	<p>The width and height parameters specify the maximum size the resized image can be in each dimension.  The other dimension is scaled to maintain the image aspect ratio.</p>
 	
 	<p>The encoding parameter should be a value from the SWFUpload.RESIZE_ENCODING constants.</p>
 	
-	<p>The quality parameter is used only for JPEG encoding. I can be value from 0 to 100 and is clamped to a valid value if it is out of range.</p>
+	<p>The quality parameter is used only for JPEG encoding and can be value from 0 to 100. The value is clamped if it is out of range.</p>
 	
-	<p>Calling startResizedUpload begins the Upload Event Chain.</p>
+	<p>Calling startResizedUpload begins the normal Upload Event Chain.  However, the Flash Player does not provide periodic uploadProgress events.  SWFUpload sends only simulated 0% and 100% uploadProgress events.</p>
+	
+	<p>A resized image is uploaded as POST value (rather than a FILE) due to security &quot;features&quot; introduced in Flash Player 10.  Resized images have to be handled differently than normal uploads:</p>
+	
+	<code>$resizedImageData = $_POST["Filedata"];	// Data from $_POST rather than $_FILE
+$fileHandle = fopen("image.jpg", "w");
+fwrite($fileHandle, $resizedImageData);
+fclose($fileHandle);
+</code>
 	
 	<h4><a name="cancelUpload"></a>void cancelUpload(<span class="parameter">file_id</span>, <span class="parameter">trigger_error_event</span>)</h4>
 	
