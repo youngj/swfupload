@@ -70,7 +70,6 @@ package {
 		private var assumeSuccessTimer:Timer = null;
 		
 		private var sizeTimer:Timer;
-		private var restoreExtIntTimer:Timer;
 		private var hasCalledFlashReady:Boolean = false;
 		
 		// Callbacks
@@ -80,6 +79,7 @@ package {
 		private var fileQueueError_Callback:String;
 		private var fileDialogComplete_Callback:String;
 		
+		private var uploadResizeStart_Callback:String;
 		private var uploadStart_Callback:String;
 		private var uploadProgress_Callback:String;
 		private var uploadError_Callback:String;
@@ -271,6 +271,7 @@ package {
 			this.fileQueueError_Callback        = "SWFUpload.instances[\"" + this.movieName + "\"].fileQueueError";
 			this.fileDialogComplete_Callback    = "SWFUpload.instances[\"" + this.movieName + "\"].fileDialogComplete";
 
+			this.uploadResizeStart_Callback     = "SWFUpload.instances[\"" + this.movieName + "\"].uploadResizeStart";
 			this.uploadStart_Callback           = "SWFUpload.instances[\"" + this.movieName + "\"].uploadStart";
 			this.uploadProgress_Callback        = "SWFUpload.instances[\"" + this.movieName + "\"].uploadProgress";
 			this.uploadError_Callback           = "SWFUpload.instances[\"" + this.movieName + "\"].uploadError";
@@ -1309,18 +1310,14 @@ package {
 		}
 		
 		private function PrepareResizedImage(resizeSettings:Object):void {
-			if (this.current_file_item == null) {
-				this.Debug("PrepareResizedImage called but no file was prepped for uploading. The file may have been cancelled or stopped.");
-				return;
-			}
-			
 			try {
-				var resizer:ImageResizer = new ImageResizer(this.current_file_item, resizeSettings["width"], resizeSettings["height"], resizeSettings["encoding"], resizeSettings["quality"]);
+				var resizer:ImageResizer = new ImageResizer(this.current_file_item, resizeSettings["width"], resizeSettings["height"], resizeSettings["encoding"], resizeSettings["quality"], resizeSettings["allowEnlarging"]);
 				resizer.addEventListener(ImageResizerEvent.COMPLETE, this.PrepareResizedImageCompleteHandler);
 				resizer.addEventListener(ErrorEvent.ERROR, this.PrepareResizedImageErrorHandler);
 				
 				this.Debug("PrepareThumbnail(): Beginning image resizing.");
 				this.Debug("Settings: Width: " + resizeSettings["width"] + ", Height: " + resizeSettings["height"] + ", Encoding: " + (resizeSettings["encoding"] == this.ENCODER_PNG ? "PNG" : "JPEG") + ", Quality: " + resizeSettings["quality"] + ".");
+				ExternalCall.UploadResizeStart(this.uploadResizeStart_Callback, this.current_file_item.ToJavaScriptObject(), resizeSettings);
 				resizer.ResizeImage();
 			
 			} catch (ex:Object) {

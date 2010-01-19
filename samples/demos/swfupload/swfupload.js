@@ -205,6 +205,7 @@ SWFUpload.prototype.initSettings = function (userSettings) {
 	this.ensureDefault("file_queue_error_handler", null);
 	this.ensureDefault("file_dialog_complete_handler", null);
 	
+	this.ensureDefault("upload_resize_start_handler", null);
 	this.ensureDefault("upload_start_handler", null);
 	this.ensureDefault("upload_progress_handler", null);
 	this.ensureDefault("upload_error_handler", null);
@@ -478,6 +479,7 @@ SWFUpload.prototype.displayDebugInfo = function () {
 			"\t", "file_dialog_start_handler assigned: ", (typeof this.settings.file_dialog_start_handler === "function").toString(), "\n",
 			"\t", "file_queued_handler assigned:       ", (typeof this.settings.file_queued_handler === "function").toString(), "\n",
 			"\t", "file_queue_error_handler assigned:  ", (typeof this.settings.file_queue_error_handler === "function").toString(), "\n",
+			"\t", "upload_resize_start_handler assigned:      ", (typeof this.settings.upload_resize_start_handler === "function").toString(), "\n",
 			"\t", "upload_start_handler assigned:      ", (typeof this.settings.upload_start_handler === "function").toString(), "\n",
 			"\t", "upload_progress_handler assigned:   ", (typeof this.settings.upload_progress_handler === "function").toString(), "\n",
 			"\t", "upload_error_handler assigned:      ", (typeof this.settings.upload_error_handler === "function").toString(), "\n",
@@ -577,8 +579,8 @@ SWFUpload.prototype.startUpload = function (fileID) {
 
 // Public: startUpload starts uploading the first file in the queue unless
 // the optional parameter 'fileID' specifies the ID 
-SWFUpload.prototype.startResizedUpload = function (fileID, width, height, encoding, quality) {
-	this.callFlash("StartUpload", [fileID, { "width": width, "height" : height, "encoding" : encoding, "quality" : quality }]);
+SWFUpload.prototype.startResizedUpload = function (fileID, width, height, encoding, quality, allowEnlarging) {
+	this.callFlash("StartUpload", [fileID, { "width": width, "height" : height, "encoding" : encoding, "quality" : quality, "allowEnlarging" : allowEnlarging }]);
 };
 
 // Public: cancelUpload cancels any queued file.  The fileID parameter may be the file ID or index.
@@ -986,6 +988,11 @@ SWFUpload.prototype.fileQueueError = function (file, errorCode, message) {
 	You could call startUpload here if you want the queued files to begin uploading immediately. */
 SWFUpload.prototype.fileDialogComplete = function (numFilesSelected, numFilesQueued, numFilesInQueue) {
 	this.queueEvent("file_dialog_complete_handler", [numFilesSelected, numFilesQueued, numFilesInQueue]);
+};
+
+SWFUpload.prototype.uploadResizeStart = function (file, resizeSettings) {
+	file = this.unescapeFilePostParams(file);
+	this.queueEvent("upload_resize_start_handler", [file, resizeSettings.width, resizeSettings.height, resizeSettings.encoding, resizeSettings.quality]);
 };
 
 SWFUpload.prototype.uploadStart = function (file) {

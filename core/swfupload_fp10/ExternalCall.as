@@ -32,6 +32,10 @@ package {
 			
 		}
 		
+		public static function UploadResizeStart(callback:String, file_object:Object, resizeSettings:Object):void  {
+			ExternalInterface.call(callback, EscapeMessage(file_object), EscapeMessage(resizeSettings));
+		}
+		
 		public static function UploadStart(callback:String, file_object:Object):void  {
 			ExternalInterface.call(callback, EscapeMessage(file_object));
 		}

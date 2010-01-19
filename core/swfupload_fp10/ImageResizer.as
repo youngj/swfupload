@@ -35,16 +35,18 @@ package
 		private var newHeight:Number = 1;
 		private var encoder:Number = ImageResizer.JPEGENCODER;
 		private var quality:Number = 100;
+		private var allowEnlarging:Boolean = true;
 		
 		public static const JPEGENCODER:Number = -1;
 		public static const PNGENCODE:Number = -2;
 		
-		public function ImageResizer(file:FileItem, targetWidth:Number, targetHeight:Number, encoder:Number, quality:Number = 100) {
+		public function ImageResizer(file:FileItem, targetWidth:Number, targetHeight:Number, encoder:Number, quality:Number = 100, allowEnlarging:Boolean = true) {
 			this.file = file;
 			this.targetHeight = targetHeight;
 			this.targetWidth = targetWidth;
 			this.encoder = encoder;
 			this.quality = quality;
+			this.allowEnlarging = allowEnlarging;
 			
 			if (this.encoder != ImageResizer.JPEGENCODER && this.encoder != ImageResizer.PNGENCODE) {
 				this.encoder = ImageResizer.JPEGENCODER;
@@ -114,6 +116,12 @@ package
 				loader.unload();
 				loader = null;
 
+				// If enlarging is not allowed but the new width causes enlarging then adjust the dimensions
+				if (!this.allowEnlarging && (this.newWidth > bmp.width || this.newHeight > bmp.height)) {
+					this.newWidth = bmp.width;
+					this.newHeight = bmp.height;
+				}
+				
 				// Blur it a bit if it is sizing smaller
 				if (this.newWidth < bmp.width || this.newHeight <= bmp.height) {
 					// Apply the blur filter that helps clean up the resized image result
