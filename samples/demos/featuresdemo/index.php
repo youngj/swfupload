@@ -1,6 +1,6 @@
 <?php session_start(); ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" >
+<!DOCTYPE html>
+<html>
 <head>
 <title>SWFUpload Demos - Features Demo</title>
 <link href="../css/default.css" rel="stylesheet" type="text/css" />
@@ -38,6 +38,7 @@
 				button_width : 270,
 				button_height : 22,
 				button_action : SWFUpload.BUTTON_ACTION.SELECT_FILES,
+				button_cursor : SWFUpload.CURSOR.ARROW,
 				button_placeholder_id : "spanButtonPlaceholder",
 				button_text : '<span class="btnText">Select Files...</span>',
 				button_text_style : ".btnText { font-size: 10; font-weight: bold; font-family: MS Shell Dlg; }",
@@ -244,8 +245,8 @@
 								<label><input type="text" id="txtResizeHeight" style="width: 25px;" /> h</label>
 							</div>
 							<div>
-								Encoding: <label><input type="radio" id="rbJPEG" name="encoding" /> JPEG</label>
-								<label><input type="radio" id="rbPNG" name="encoding" /> PNG</label>
+								Encoding: <input type="radio" id="rbJPEG" name="encoding" /> <label for="rbJPEG">JPEG</label>
+								<input type="radio" id="rbPNG" name="encoding" /> <label for="rbPNG">PNG</label>
 							</div>
 							<div>
 								<label>Quality (JPEG): <input type="text" id="txtQuality" /></label>
@@ -325,6 +326,13 @@
 										<input id="rbButtonActionSelectFiles" type="radio" name="button_action" /> <label for="rbButtonActionSelectFiles" style="display: inline;">Select Files</label><br />
 										<input id="rbButtonActionStartUpload" type="radio" name="button_action" /> <label for="rbButtonActionStartUpload" style="display: inline;">Start Upload</label><br />
 										<input id="rbButtonActionNone" type="radio" name="button_action" /> <label for="rbButtonActionNone" style="display: inline;">None</label><br />
+										</div>
+									</div>
+									<div class="checkbox">
+										<label>button_cursor</label>
+										<div style="margin-left: 10px;">
+										<input id="rbButtonCursorArrow" type="radio" name="button_cursor" /> <label for="rbButtonCursorArrow" style="display: inline;">Arrow</label><br />
+										<input id="rbButtonCursorHand" type="radio" name="button_cursor" /> <label for="rbButtonCursorHand" style="display: inline;">Hand</label><br />
 										</div>
 									</div>
 									<div class="checkbox">

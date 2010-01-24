@@ -16,6 +16,7 @@
  * + Added swfupload_load_failed_handler event/setting
  * + Added flash9_url to support SWF split to support Flash Player 9 and Flash Player 10
  * = Fixed param encoding issue
+ * = Fixed button cursor when no button image was loaded
 
  
  * --------- Version 2.2.1-----------

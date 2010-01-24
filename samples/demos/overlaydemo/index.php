@@ -1,5 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" >
+<!DOCTYPE html>
+<html>
 <head>
 <title>SWFUpload Demos - Overlay Demo</title>
 <link href="../css/default.css" rel="stylesheet" type="text/css" />
@@ -42,7 +42,7 @@ SWFUpload.onload = function () {
 
 		// The event handler functions are defined in handlers.js
 		swfupload_preload_handler : swfUploadPreLoad,
-		swfupload_load_failed_handler : swfUploadLoadFailed
+		swfupload_load_failed_handler : swfUploadLoadFailed,
 		swfupload_loaded_handler : swfUploadLoaded,
 		file_queued_handler : fileQueued,
 		file_queue_error_handler : fileQueueError,
@@ -52,7 +52,7 @@ SWFUpload.onload = function () {
 		upload_error_handler : uploadError,
 		upload_success_handler : uploadSuccess,
 		upload_complete_handler : uploadComplete,
-		queue_complete_handler : queueComplete,	// Queue plugin event
+		queue_complete_handler : queueComplete	// Queue plugin event
 		
 	};
 

@@ -466,6 +466,7 @@ SWFUpload.prototype.displayDebugInfo = function () {
 			"\t", "button_text_top_padding:  ", this.settings.button_text_top_padding.toString(), "\n",
 			"\t", "button_text_left_padding: ", this.settings.button_text_left_padding.toString(), "\n",
 			"\t", "button_action:            ", this.settings.button_action.toString(), "\n",
+			"\t", "button_cursor:            ", this.settings.button_cursor.toString(), "\n",
 			"\t", "button_disabled:          ", this.settings.button_disabled.toString(), "\n",
 
 			"\t", "custom_settings:          ", this.settings.custom_settings.toString(), "\n",

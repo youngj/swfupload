@@ -256,6 +256,18 @@ package {
 			this.buttonCursorSprite.addEventListener(MouseEvent.CLICK, doNothing);
 			this.stage.addChild(this.buttonCursorSprite);
 			
+			this.sizeTimer = new Timer(10, 0);
+			this.sizeTimer.addEventListener(TimerEvent.TIMER, function ():void {
+				//self.Debug("Stage:" + self.stage.stageWidth + " by " + self.stage.stageHeight);
+				if (self.stage.stageWidth > 0 || self.stage.stageHeight > 0) {
+					self.HandleStageResize(null);
+					self.sizeTimer.stop();
+					self.sizeTimer.removeEventListener(TimerEvent.TIMER, arguments.callee);
+					self.sizeTimer = null;
+				}
+			} );
+			this.sizeTimer.start();
+			
 			// Get the movie name
 			this.movieName = decodeURIComponent(root.loaderInfo.parameters.movieName);
 
@@ -413,27 +425,30 @@ package {
 		}
 
 		private function HandleStageResize(e:Event):void {
-			try {
-				if (this.stage.stageWidth > 0 || this.stage.stageHeight > 0) {
-					var buttonHeight:Number = this.buttonLoader.contentLoaderInfo.height / 4;
+			if (this.stage.stageWidth > 0 || this.stage.stageHeight > 0) {
+				this.Debug("Stage Resize:" + this.stage.stageWidth + " by " + this.stage.stageHeight);
 
-					// Scale the button cursor
-					this.buttonCursorSprite.width = this.stage.stageWidth;
-					this.buttonCursorSprite.height = this.stage.stageHeight;
-					
-					// scale the button
+				// scale the button (if it's not loaded don't crash)
+				try {
+					var buttonHeight:Number = this.buttonLoader.contentLoaderInfo.height / 4;
 					this.buttonLoader.height = this.stage.stageHeight * 4;
 					this.buttonLoader.scaleX = this.buttonLoader.scaleY;
-					
-					// scale the text area (it doesn't resize but it still needs to fit)
+				} catch (ex:Error) { }
+				
+				// Scale the button cursor
+				try {
+					this.buttonCursorSprite.width = this.stage.stageWidth;
+					this.buttonCursorSprite.height = this.stage.stageHeight;
+				} catch (ex:Error) {}
+				
+				// scale the text area (it doesn't resize but it still needs to fit)
+				try {
 					this.buttonTextField.width = this.stage.stageWidth;
 					this.buttonTextField.height = this.stage.stageHeight;
-					
-					this.Debug("Stage:" + this.stage.stageWidth + " by " + this.stage.stageHeight);
-				}
-			} catch (ex:Error) {}
+				} catch (ex:Error) {}
+			}
 		}
-
+		
 		private function SetupExternalInterface():void {
 			try {
 				ExternalInterface.addCallback("SelectFile", this.SelectFile);
@@ -1153,21 +1168,8 @@ package {
 		}
 		
 		private function ButtonImageLoaded(e:Event):void {
-			var self:SWFUpload = this;
 			this.Debug("Button Image Loaded");
 			this.HandleStageResize(null);
-
-			this.sizeTimer = new Timer(10, 0);
-			this.sizeTimer.addEventListener(TimerEvent.TIMER, function ():void {
-				//self.Debug("Stage:" + self.stage.stageWidth + " by " + self.stage.stageHeight);
-				if (self.stage.stageWidth > 0 || self.stage.stageHeight > 0) {
-					self.sizeTimer.stop();
-					self.sizeTimer.removeEventListener(TimerEvent.TIMER, arguments.callee);
-					self.sizeTimer = null;
-					self.HandleStageResize(null);
-				}
-			} );
-			this.sizeTimer.start();
 		}
 
 		
@@ -1243,7 +1245,7 @@ package {
 		private function SetButtonCursor(button_cursor:Number):void {
 			this.buttonCursor = button_cursor;
 			
-			this.buttonCursorSprite.useHandCursor = (button_cursor === this.BUTTON_CURSOR_HAND);
+			this.buttonCursorSprite.useHandCursor = (this.buttonCursor === this.BUTTON_CURSOR_HAND);
 		}
 		
 		/* *************************************************************

@@ -146,6 +146,8 @@ var FeaturesDemo = {
 		FeaturesDemo.rbButtonActionSelectFiles = document.getElementById("rbButtonActionSelectFiles");
 		FeaturesDemo.rbButtonActionStartUpload = document.getElementById("rbButtonActionStartUpload");
 		FeaturesDemo.rbButtonActionNone = document.getElementById("rbButtonActionNone");
+		FeaturesDemo.rbButtonCursorArrow = document.getElementById("rbButtonCursorArrow");
+		FeaturesDemo.rbButtonCursorHand = document.getElementById("rbButtonCursorHand");
 		FeaturesDemo.txtButtonImageUrl = document.getElementById("txtButtonImageUrl");
 		FeaturesDemo.txtButtonText = document.getElementById("txtButtonText");
 		FeaturesDemo.txtButtonWidth = document.getElementById("txtButtonWidth");
@@ -194,6 +196,8 @@ var FeaturesDemo = {
 		FeaturesDemo.rbButtonActionSelectFiles.checked = false;
 		FeaturesDemo.rbButtonActionStartUpload.checked = false;
 		FeaturesDemo.rbButtonActionNone.checked = false;
+		FeaturesDemo.rbButtonCursorArrow.checked = true;
+		FeaturesDemo.rbButtonCursorHand.checked = false;
 		FeaturesDemo.txtButtonImageUrl.value = "";
 		FeaturesDemo.txtButtonText.value = "";
 		FeaturesDemo.txtButtonWidth.value = "";
@@ -226,6 +230,15 @@ var FeaturesDemo = {
 		case SWFUpload.BUTTON_ACTION.SELECT_FILES:
 		default:
 			FeaturesDemo.rbButtonActionSelectFiles.checked = true;
+			break;
+		}
+		
+		switch (FeaturesDemo.SU.settings.button_cursor) {
+		case SWFUpload.CURSOR.ARROW:
+			FeaturesDemo.rbButtonCursorArrow.checked = true;
+			break;
+		case SWFUpload.CURSOR.HAND:
+			FeaturesDemo.rbButtonCursorHand.checked = true;
 			break;
 		}
 		
@@ -424,6 +437,15 @@ var FeaturesDemo = {
 			break;
 		case FeaturesDemo.rbButtonActionNone.checked:
 			FeaturesDemo.SU.setButtonAction(SWFUpload.BUTTON_ACTION.NONE);
+			break;
+		}
+
+		switch (true) {
+		case FeaturesDemo.rbButtonCursorArrow.checked:
+			FeaturesDemo.SU.setButtonCursor(SWFUpload.CURSOR.ARROW);
+			break;
+		case FeaturesDemo.rbButtonCursorHand.checked:
+			FeaturesDemo.SU.setButtonCursor(SWFUpload.CURSOR.HAND);
 			break;
 		}
 		
