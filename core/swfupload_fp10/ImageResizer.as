@@ -63,8 +63,8 @@ package
 			} catch (ex:Error) {
 				this.file.file_reference.removeEventListener(Event.COMPLETE, this.fileLoad_Complete);
 				dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, "Loading from file reference: " + ex.message));
+				this.file = null;
 			}
-			this.file = null;
 		}
 		
 		private function fileLoad_Complete(event:Event):void {
@@ -102,6 +102,8 @@ package
 
 				var loader:Loader = Loader(event.target.loader);
 
+				var contentType:String = loader.contentLoaderInfo.contentType;
+				
 				// Calculate the new image size
 				var targetRatio:Number = this.targetWidth / this.targetHeight;
 				var imgRatio:Number = loader.width / loader.height;
@@ -123,7 +125,7 @@ package
 				}
 				
 				// Blur it a bit if it is sizing smaller
-				if (this.newWidth < bmp.width || this.newHeight <= bmp.height) {
+				if (this.newWidth < bmp.width || this.newHeight < bmp.height) {
 					// Apply the blur filter that helps clean up the resized image result
 					var blurMultiplier:Number = 1.15; // 1.25;
 					var blurXValue:Number = Math.max(1, bmp.width / this.newWidth) * blurMultiplier;
@@ -133,29 +135,41 @@ package
 					bmp.applyFilter(bmp, new Rectangle(0, 0, bmp.width, bmp.height), new Point(0, 0), blurFilter);
 				}
 
-				// Apply the resizing
-				var matrix:Matrix = new Matrix();
-				matrix.identity();
-				matrix.createBox(this.newWidth / bmp.width, this.newHeight / bmp.height);
+				if (this.newWidth < bmp.width || this.newHeight < bmp.height || this.IsTranscoding(contentType)) {
+					// Apply the resizing
+					var matrix:Matrix = new Matrix();
+					matrix.identity();
+					matrix.createBox(this.newWidth / bmp.width, this.newHeight / bmp.height);
 
-				resizedBmp = new BitmapData(this.newWidth, this.newHeight, true, 0x000000);
-				resizedBmp.draw(bmp, matrix, null, null, null, true);
-				
-				bmp.dispose();
-				
-				if (this.encoder == ImageResizer.PNGENCODE) {
-					var pngEncoder:PNGEncoder = new PNGEncoder(PNGEncoder.TYPE_SUBFILTER, 1);
-					pngEncoder.addEventListener(EncodeCompleteEvent.COMPLETE, this.EncodeCompleteHandler);
-					pngEncoder.addEventListener(ErrorEvent.ERROR, this.EncodeErrorHandler);
-					pngEncoder.encode(resizedBmp);
+					resizedBmp = new BitmapData(this.newWidth, this.newHeight, true, 0x000000);
+					resizedBmp.draw(bmp, matrix, null, null, null, true);
+					
+					bmp.dispose();
+					
+					if (this.encoder == ImageResizer.PNGENCODE) {
+						var pngEncoder:PNGEncoder = new PNGEncoder(PNGEncoder.TYPE_SUBFILTER, 1);
+						pngEncoder.addEventListener(EncodeCompleteEvent.COMPLETE, this.EncodeCompleteHandler);
+						pngEncoder.addEventListener(ErrorEvent.ERROR, this.EncodeErrorHandler);
+						pngEncoder.encode(resizedBmp);
+					} else {
+						var jpegEncoder:AsyncJPEGEncoder = new AsyncJPEGEncoder(this.quality, 0, 100);
+						jpegEncoder.addEventListener(EncodeCompleteEvent.COMPLETE, this.EncodeCompleteHandler);
+						jpegEncoder.encode(resizedBmp);
+					}
 				} else {
-					var jpegEncoder:AsyncJPEGEncoder = new AsyncJPEGEncoder(this.quality, 0, 100);
-					jpegEncoder.addEventListener(EncodeCompleteEvent.COMPLETE, this.EncodeCompleteHandler);
-					jpegEncoder.encode(resizedBmp);
+					// Just send along the unmodified data
+					dispatchEvent(new ImageResizerEvent(ImageResizerEvent.COMPLETE, this.file.file_reference.data, this.encoder));
 				}
+				
 			} catch (ex:Error) {
 				dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, "Resizing: " + ex.message));
 			}
+			
+			this.file = null;
+		}
+		
+		private function IsTranscoding(type:String):Boolean {
+			return !((type == "image/jpeg" && this.encoder == ImageResizer.JPEGENCODER) || (type == "image/png" && this.encoder == ImageResizer.PNGENCODE));
 		}
 		
 		private function EncodeErrorHandler(e:ErrorEvent):void {
