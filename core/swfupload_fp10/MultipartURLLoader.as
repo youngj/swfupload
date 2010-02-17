@@ -229,10 +229,14 @@
 
 			postData = BOUNDARY(postData);
 			postData = LINEBREAK(postData);
-			bytes = 'Content-Disposition: form-data; name="' + this._uploadDataFieldName + '"';
+			bytes = 'Content-Disposition: form-data; name="' + this._uploadDataFieldName +  '"; filename="';
 			for ( i = 0; i < bytes.length; i++ ) {
 				postData.writeByte( bytes.charCodeAt(i) );
 			}
+			
+			postData.writeUTFBytes(fileName);
+			postData = QUOTATIONMARK(postData);
+			
 			postData = LINEBREAK(postData);
 			bytes = 'Content-Type: application/octet-stream';
 			for ( i = 0; i < bytes.length; i++ ) {

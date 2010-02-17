@@ -13,7 +13,8 @@
 	ini_set("html_errors", "0");
 
 	// Check the upload
-	if (!isset($_POST["Filedata"])) {
+	// Check the upload
+	if (!isset($_FILES["Filedata"]) || !is_uploaded_file($_FILES["Filedata"]["tmp_name"]) || $_FILES["Filedata"]["error"] != 0) {
 		echo "ERROR:invalid upload";
 		exit(0);
 	}
@@ -25,7 +26,7 @@
 
 	$file_id = md5(rand()*10000000);
 	
-	$_SESSION["file_info"][$file_id] = $_POST["Filedata"];
+	$_SESSION["file_info"][$file_id] = file_get_contents($_FILES["Filedata"]["tmp_name"]);
 
 	echo "FILEID:" . $file_id;	// Return the file id to the script
 	

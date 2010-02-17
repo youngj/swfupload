@@ -22,7 +22,8 @@ package
 	import flash.geom.Rectangle;
 	import flash.net.FileReference;
 	import flash.utils.ByteArray;
-	
+	import cmodule.jpegencoder.CLibInit;
+
 	/*
 	Technique adapted from Kun Janos (http://kun-janos.ro/blog/?p=107)
 	*/
@@ -152,9 +153,17 @@ package
 						pngEncoder.addEventListener(ErrorEvent.ERROR, this.EncodeErrorHandler);
 						pngEncoder.encode(resizedBmp);
 					} else {
-						var jpegEncoder:AsyncJPEGEncoder = new AsyncJPEGEncoder(this.quality, 0, 100);
-						jpegEncoder.addEventListener(EncodeCompleteEvent.COMPLETE, this.EncodeCompleteHandler);
-						jpegEncoder.encode(resizedBmp);
+						//var jpegEncoder:AsyncJPEGEncoder = new AsyncJPEGEncoder(this.quality, 0, 100);
+						
+						//jpegEncoder.addEventListener(EncodeCompleteEvent.COMPLETE, this.EncodeCompleteHandler);
+						//jpegEncoder.encode(resizedBmp);
+						
+						this.ba = resizedBmp.getPixels(resizedBmp.rect);
+						this.ba.position = 0;
+						this.baOut = new ByteArray();
+
+						var cLibEncoder:Object = (new CLibInit).init();
+						cLibEncoder.encodeAsync(compressFinished, this.ba, this.baOut, resizedBmp.width, resizedBmp.height, this.quality);
 					}
 				} else {
 					// Just send along the unmodified data
@@ -176,6 +185,15 @@ package
 			dispatchEvent(e);
 		}
 
+		private var ba:ByteArray;
+		private var baOut:ByteArray;
+		private function compressFinished(out:ByteArray):void {
+			this.baOut.position = 0;
+			this.ba.length = 0;
+			
+			this.EncodeCompleteHandler(new EncodeCompleteEvent(baOut));		
+		}
+		
 		private function EncodeCompleteHandler(e:EncodeCompleteEvent):void {
 			dispatchEvent(new ImageResizerEvent(ImageResizerEvent.COMPLETE, e.data, this.encoder));
 		}

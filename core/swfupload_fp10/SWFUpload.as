@@ -47,7 +47,7 @@ package {
 		}
 		
 
-		private const build_number:String = "2.5.0 2010-01-15 Beta 2";
+		private const build_number:String = "2.5.0 2010-02-17 Beta 3";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();

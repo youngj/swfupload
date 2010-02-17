@@ -2,6 +2,7 @@
 
  * --------- Version 2.5.0-----------
  * + Added Client Side thumbnail generation and uploading and related settings
+ *    -- Thanks to matzes for getting standard HTTP uploading to work
  * = Fixed double encoding of settings issue
  * = Improved movieElement grabbing
  * - Removed settings clone as it is unreliable
