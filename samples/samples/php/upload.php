@@ -58,7 +58,7 @@ Notes:
 	}
 
 // Settings
-	$save_path = getcwd() . "/uploads/";				// The path were we will save the file (getcwd() may not be reliable and should be tested in your environment)
+	$save_path = dirname(__FILENAME__) . "/uploads/";				// The path were we will save the file (getcwd() may not be reliable and should be tested in your environment)
 	$upload_name = "Filedata";
 	$max_file_size_in_bytes = 2147483647;				// 2GB in bytes
 	$extension_whitelist = array("jpg", "gif", "png");	// Allowed file extensions
