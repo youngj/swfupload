@@ -525,6 +525,7 @@ package {
 						this.assumeSuccessTimer = null;
 					}
 					
+					this.Debug("Starting assume success timer");
 					this.assumeSuccessTimer = new Timer(this.assumeSuccessTimeout * 1000, 1);
 					this.assumeSuccessTimer.addEventListener(TimerEvent.TIMER_COMPLETE, AssumeSuccessTimer_Handler);
 					this.assumeSuccessTimer.start();
@@ -607,6 +608,10 @@ package {
 				}
 			}
 			
+			if (this.assumeSuccessTimer != null) {
+					this.assumeSuccessTimer.stop();
+					this.assumeSuccessTimer = null;
+			}
 			
 			if (isSuccessStatus) {
 				this.Debug("Event: httpError: Translating status code " + event.status + " to uploadSuccess");
@@ -626,6 +631,11 @@ package {
 		// Note: Flash Player does not support Uploads that require authentication. Attempting this will trigger an
 		// IO Error or it will prompt for a username and password and may crash the browser (FireFox/Opera)
 		private function IOError_Handler(event:IOErrorEvent):void {
+			if (this.assumeSuccessTimer != null) {
+					this.assumeSuccessTimer.stop();
+					this.assumeSuccessTimer = null;
+			}
+
 			// Only trigger an IO Error event if we haven't already done an HTTP error
 			if (this.current_file_item.file_status != FileItem.FILE_STATUS_ERROR) {
 				this.upload_errors++;
@@ -1339,7 +1349,12 @@ package {
 			
 			if (this.current_file_item != null) {
 				var extension:String = event.encoding == this.ENCODER_PNG ? ".png" : ".jpg";
-				this.current_file_item.resized_uploader = new MultipartURLLoader(event.data, this.current_file_item.file_reference.name + extension);
+				
+				var newFileName:String = this.current_file_item.file_reference.name.lastIndexOf(".") > 1 ?
+					(this.current_file_item.file_reference.name.substring(0, this.current_file_item.file_reference.name.lastIndexOf(".")) + extension) :
+					(this.current_file_item.file_reference.name + extension);
+				
+				this.current_file_item.resized_uploader = new MultipartURLLoader(event.data, newFileName);
 				ExternalCall.UploadStart(this.uploadStart_Callback, this.current_file_item.ToJavaScriptObject());
 			}
 		}		

@@ -29,7 +29,7 @@ var FeaturesDemoHandlers = {
 
 	mouseOut : function () {
 		try {
-			FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("Mosue Out", "");
+			FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("Mouse Out", "");
 		} catch (ex) {
 			this.debug(ex);
 		}

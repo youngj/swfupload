@@ -337,7 +337,9 @@
 		
 			this._fileName = null;
 			this._uploadDataFieldName = null;
+			if (this._fileData !== null) this._fileData.length = 0;
 			this._fileData = null;
+			if (this._data !== null) this._data.length = 0;
 			this._data = null;
 			this._httpStatus = undefined;
 		

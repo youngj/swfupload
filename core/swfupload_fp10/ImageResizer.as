@@ -41,6 +41,8 @@ package
 		public static const JPEGENCODER:Number = -1;
 		public static const PNGENCODE:Number = -2;
 		
+		private static var cLibEncoder:Object = null;
+		
 		public function ImageResizer(file:FileItem, targetWidth:Number, targetHeight:Number, encoder:Number, quality:Number = 100, allowEnlarging:Boolean = true) {
 			this.file = file;
 			this.targetHeight = targetHeight;
@@ -83,6 +85,12 @@ package
 				loader.removeEventListener(Event.COMPLETE, this.loader_Complete);
 				dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, "Loading Loader" + ex.message));
 				this.file = null;
+			}
+			
+			try {
+				FileReference(event.target).data.clear();
+			} catch (ex:Error) {
+			
 			}
 		}
 		private function loader_Error(event:IOErrorEvent):void {
@@ -153,17 +161,14 @@ package
 						pngEncoder.addEventListener(ErrorEvent.ERROR, this.EncodeErrorHandler);
 						pngEncoder.encode(resizedBmp);
 					} else {
-						//var jpegEncoder:AsyncJPEGEncoder = new AsyncJPEGEncoder(this.quality, 0, 100);
-						
-						//jpegEncoder.addEventListener(EncodeCompleteEvent.COMPLETE, this.EncodeCompleteHandler);
-						//jpegEncoder.encode(resizedBmp);
-						
 						this.ba = resizedBmp.getPixels(resizedBmp.rect);
 						this.ba.position = 0;
 						this.baOut = new ByteArray();
 
-						var cLibEncoder:Object = (new CLibInit).init();
-						cLibEncoder.encodeAsync(compressFinished, this.ba, this.baOut, resizedBmp.width, resizedBmp.height, this.quality);
+						if (ImageResizer.cLibEncoder === null) {
+							ImageResizer.cLibEncoder = (new CLibInit).init();
+						}
+						ImageResizer.cLibEncoder.encodeAsync(compressFinished, this.ba, this.baOut, resizedBmp.width, resizedBmp.height, this.quality);
 					}
 				} else {
 					// Just send along the unmodified data
@@ -171,6 +176,13 @@ package
 				}
 				
 			} catch (ex:Error) {
+				if (this.ba !== null) {
+					this.ba.clear();
+				}
+				if (this.baOut !== null) {
+					this.baOut.clear();
+				}
+				
 				dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, "Resizing: " + ex.message));
 			}
 			
@@ -189,9 +201,9 @@ package
 		private var baOut:ByteArray;
 		private function compressFinished(out:ByteArray):void {
 			this.baOut.position = 0;
-			this.ba.length = 0;
+			this.ba.clear();
 			
-			this.EncodeCompleteHandler(new EncodeCompleteEvent(baOut));		
+			this.EncodeCompleteHandler(new EncodeCompleteEvent(baOut));	
 		}
 		
 		private function EncodeCompleteHandler(e:EncodeCompleteEvent):void {
