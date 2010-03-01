@@ -802,9 +802,20 @@ fclose($fileHandle);
 	
 	<h4><a name="uploadProgress"></a><span class="function">uploadProgress(<span class="parameter">file object</span>, <span class="parameter">bytes complete</span>, <span class="parameter">total bytes</span>)</span></h4>
 	<p>The uploadProgress event is fired periodically by the Flash Control.  This event is useful for providing UI updates on the page.</p>
-	<p><strong>Note:</strong> The Linux Flash Player fires a single uploadProgress event after the entire file has been uploaded.  This is a bug in
-	the Linux Flash Player that we cannot work around.</p>
+	
+	<p>The total bytes value represents the total bytes that will be sent in order to complete the upload.  This value will always be larger than the actual file size due to additional post parameters sent with the upload, if any, and overhead required by the multipart/form-data encoding used to send the file data.
+	This overhead is normal for HTML Form uploads and is not unique to SWFUpload.</p>
+	
+	<p>In order to work around bugs in different Flash Players simulated uploadProgress events are fired for every upload.</p>
+	<p>An initial uploadProgress is always fired with a bytes complete value of 0. It is possible that a simulated and a real uploadProgress event are fired with a bytes complete value of 0, resulting in 2 events, but this has not been seen in practice.</p>
+	<p>If no uploadProgress is fired by the Flash Player where bytes complete equals bytes total then before the uploadSuccess event is fired a simulated uploadProgress event will be fired.</p>
+	
+	<p>For resized image uploads only the two simulated uploadProgress events are fired.</p>
+	
 	<p>Set using the upload_progress_handler setting.</p>
+
+	<p><strong>Note:</strong> The Linux Flash Player fires a single uploadProgress event after the entire file has been uploaded.  This is a bug in
+	the Linux Flash Player that we cannot work around.  The simulated uploadProgress events should help mitigate the issue.</p>
 	
 	<h4><a name="uploadError"></a><span class="function">uploadError(<span class="parameter">file object</span>, <span class="parameter">error code</span>, <span class="parameter">message</span>)</span></h4>
 	<p>The uploadError event is fired any time an upload is interrupted or does not complete successfully.  The error code parameter indicates the type of error

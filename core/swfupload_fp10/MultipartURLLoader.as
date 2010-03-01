@@ -55,16 +55,20 @@
 		
 		private var asyncWriteTimeoutId:Number;
 	
+		private var _uploadSize:Number;
+		public function get size():Number {
+			return this._uploadSize;
+		}
+		
 		
 		public function MultipartURLLoader(fileData:ByteArray, fileName:String) {
 			_loader = new URLLoader();
 			_fileData = fileData;
 			_fileName = fileName;
+			_uploadSize = 0;
 		}
 
 		public function upload(request:URLRequest, uploadDataFieldName:String = "Filedata"):void {
-			dispatchEvent(new Event(Event.OPEN, false, false));
-			
 			this._httpStatus = undefined;
 			this._request = request;
 			this._uploadDataFieldName = uploadDataFieldName;
@@ -122,7 +126,12 @@
 			urlRequest.requestHeaders = this._request.requestHeaders.concat();
 			urlRequest.requestHeaders.push(new URLRequestHeader('Content-Type', 'multipart/form-data; boundary=' + getBoundary()));
 			
+			this._uploadSize = urlRequest.data.length;
+			
 			this.addListener();
+
+			dispatchEvent(new Event(Event.OPEN, false, false));
+
 			try {
 				_loader.load(urlRequest);
 			} catch (ex:Error) {

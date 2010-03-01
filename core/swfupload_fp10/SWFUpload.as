@@ -503,9 +503,17 @@ package {
 		}
 
 		private function Open_Handler(event:Event):void {
-			this.Debug("Event: uploadProgress (OPEN): File ID: " + this.current_file_item.id);
+			var uploadSize:Number = 0;
+			if (this.current_file_item.upload_type == FileItem.UPLOAD_TYPE_NORMAL) {
+				uploadSize = this.current_file_item.file_reference.size;
+			} else {
+				uploadSize = this.current_file_item.resized_uploader.size;
+			}
+			
+			this.Debug("Event: uploadProgress (OPEN): File ID: " + this.current_file_item.id + " Bytes: 0. Total: " + uploadSize);
 			this.current_file_item.finalUploadProgress = false;
-			ExternalCall.UploadProgress(this.uploadProgress_Callback, this.current_file_item.ToJavaScriptObject(), 0, this.current_file_item.file_reference.size);
+
+			ExternalCall.UploadProgress(this.uploadProgress_Callback, this.current_file_item.ToJavaScriptObject(), 0, uploadSize);
 		}
 		
 		private function FileProgress_Handler(event:ProgressEvent):void {
@@ -585,8 +593,16 @@ package {
 			// If the 100% upload progress hasn't been called then call it now
 			if (!file.finalUploadProgress) {
 				file.finalUploadProgress = true;
-				this.Debug("Event: uploadProgress (simulated 100%): File ID: " + file.id + ". Bytes: " + file.file_reference.size + ". Total: " + file.file_reference.size);
-				ExternalCall.UploadProgress(this.uploadProgress_Callback, file.ToJavaScriptObject(), file.file_reference.size, file.file_reference.size);
+				
+				var uploadSize:Number = 0;
+				if (file.upload_type == FileItem.UPLOAD_TYPE_NORMAL) {
+					uploadSize = file.file_reference.size;
+				} else {
+					uploadSize = file.resized_uploader.size;
+				}
+				
+				this.Debug("Event: uploadProgress (simulated 100%): File ID: " + file.id + ". Bytes: " + uploadSize + ". Total: " + uploadSize);
+				ExternalCall.UploadProgress(this.uploadProgress_Callback, file.ToJavaScriptObject(), uploadSize, uploadSize);
 			}
 			
 			this.successful_uploads++;
