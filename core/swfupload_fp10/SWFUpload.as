@@ -47,7 +47,7 @@ package {
 		}
 		
 
-		private const build_number:String = "2.5.0 2010-02-17 Beta 3";
+		private const build_number:String = "2.5.0 2010-03-05 Beta 3.2";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -1472,12 +1472,12 @@ package {
 			
 			this.removeEventListeners(this.current_file_item);
 			if (this.current_file_item.resized_uploader != null) {
+				this.current_file_item.file_reference.data.clear();
 				this.current_file_item.resized_uploader.dispose();
 				this.current_file_item.resized_uploader = null;
 			}
 
 			if (!eligible_for_requeue || this.requeueOnError == false) {
-				//this.current_file_item.file_reference = null;
 				this.queued_uploads--;
 			} else if (this.requeueOnError == true) {
 				this.current_file_item.file_status = FileItem.FILE_STATUS_QUEUED;

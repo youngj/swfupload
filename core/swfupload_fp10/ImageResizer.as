@@ -86,12 +86,6 @@ package
 				dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, "Loading Loader" + ex.message));
 				this.file = null;
 			}
-			
-			try {
-				FileReference(event.target).data.clear();
-			} catch (ex:Error) {
-			
-			}
 		}
 		private function loader_Error(event:IOErrorEvent):void {
 			try {
