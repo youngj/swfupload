@@ -423,7 +423,7 @@ package {
 
 			this.SetupExternalInterface();
 			
-			CONFIG::DEBUG { this.Debug(("SWFUpload Init Complete")); }
+			CONFIG::DEBUG { this.Debug("SWFUpload Init Complete"); }
 			CONFIG::DEBUG { this.PrintDebugInfo(); }
 
 			ExternalCall.Simple(this.flashReady_Callback);
@@ -432,7 +432,7 @@ package {
 
 		private function HandleStageResize(e:Event):void {
 			if (this.stage.stageWidth > 0 || this.stage.stageHeight > 0) {
-				CONFIG::DEBUG { this.Debug(("Stage Resize:" + this.stage.stageWidth + " by " + this.stage.stageHeight)); }
+				CONFIG::DEBUG { this.Debug("Stage Resize:" + this.stage.stageWidth + " by " + this.stage.stageHeight); }
 
 				// scale the button (if it's not loaded don't crash)
 				try {
@@ -499,7 +499,7 @@ package {
 				ExternalInterface.addCallback("SetButtonDisabled", this.SetButtonDisabled);
 				ExternalInterface.addCallback("SetButtonCursor", this.SetButtonCursor);
 			} catch (ex:Error) {
-				CONFIG::DEBUG { this.Debug(("Callbacks where not set: " + ex.message)); }
+				CONFIG::DEBUG { this.Debug("Callbacks where not set: " + ex.message); }
 				return;
 			}
 		}
@@ -508,7 +508,7 @@ package {
 		* FileReference Event Handlers
 		* *************************************** */
 		private function DialogCancelled_Handler(event:Event):void {
-			CONFIG::DEBUG { this.Debug(("Event: fileDialogComplete: File Dialog window cancelled.")); }
+			CONFIG::DEBUG { this.Debug("Event: fileDialogComplete: File Dialog window cancelled."); }
 			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, 0, 0, this.queued_uploads);
 		}
 
@@ -520,7 +520,7 @@ package {
 				uploadSize = this.current_file_item.resized_uploader.size;
 			}
 			
-			CONFIG::DEBUG { this.Debug(("Event: uploadProgress (OPEN): File ID: " + this.current_file_item.id + " Bytes: 0. Total: " + uploadSize)); }
+			CONFIG::DEBUG { this.Debug("Event: uploadProgress (OPEN): File ID: " + this.current_file_item.id + " Bytes: 0. Total: " + uploadSize); }
 			this.current_file_item.finalUploadProgress = false;
 
 			ExternalCall.UploadProgress(this.uploadProgress_Callback, this.current_file_item.ToJavaScriptObject(), 0, uploadSize);
@@ -543,19 +543,19 @@ package {
 						this.assumeSuccessTimer = null;
 					}
 					
-					CONFIG::DEBUG { this.Debug(("Starting assume success timer")); }
+					CONFIG::DEBUG { this.Debug("Starting assume success timer"); }
 					this.assumeSuccessTimer = new Timer(this.assumeSuccessTimeout * 1000, 1);
 					this.assumeSuccessTimer.addEventListener(TimerEvent.TIMER_COMPLETE, AssumeSuccessTimer_Handler);
 					this.assumeSuccessTimer.start();
 				}
 			}
 			
-			CONFIG::DEBUG { this.Debug(("Event: uploadProgress: File ID: " + this.current_file_item.id + ". Bytes: " + bytesLoaded + ". Total: " + bytesTotal)); }
+			CONFIG::DEBUG { this.Debug("Event: uploadProgress: File ID: " + this.current_file_item.id + ". Bytes: " + bytesLoaded + ". Total: " + bytesTotal); }
 			ExternalCall.UploadProgress(this.uploadProgress_Callback, this.current_file_item.ToJavaScriptObject(), bytesLoaded, bytesTotal);
 		}
 		
 		private function AssumeSuccessTimer_Handler(event:TimerEvent):void {
-			CONFIG::DEBUG { this.Debug(("Event: AssumeSuccess: " + this.assumeSuccessTimeout + " passed without server response")); }
+			CONFIG::DEBUG { this.Debug("Event: AssumeSuccess: " + this.assumeSuccessTimeout + " passed without server response"); }
 			this.UploadSuccess(this.current_file_item, "", false);
 		}
 
@@ -611,14 +611,14 @@ package {
 					uploadSize = file.resized_uploader.size;
 				}
 				
-				CONFIG::DEBUG { this.Debug(("Event: uploadProgress (simulated 100%): File ID: " + file.id + ". Bytes: " + uploadSize + ". Total: " + uploadSize)); }
+				CONFIG::DEBUG { this.Debug("Event: uploadProgress (simulated 100%): File ID: " + file.id + ". Bytes: " + uploadSize + ". Total: " + uploadSize); }
 				ExternalCall.UploadProgress(this.uploadProgress_Callback, file.ToJavaScriptObject(), uploadSize, uploadSize);
 			}
 			
 			this.successful_uploads++;
 			file.file_status = FileItem.FILE_STATUS_SUCCESS;
 
-			CONFIG::DEBUG { this.Debug(("Event: uploadSuccess: File ID: " + file.id + " Response Received: " + responseReceived.toString() + " Data: " + serverData)); }
+			CONFIG::DEBUG { this.Debug("Event: uploadSuccess: File ID: " + file.id + " Response Received: " + responseReceived.toString() + " Data: " + serverData); }
 			ExternalCall.UploadSuccess(this.uploadSuccess_Callback, file.ToJavaScriptObject(), serverData, responseReceived);
 
 			this.UploadComplete(false);
@@ -640,7 +640,7 @@ package {
 			}
 			
 			if (isSuccessStatus) {
-				CONFIG::DEBUG { this.Debug(("Event: httpError: Translating status code " + event.status + " to uploadSuccess")); }
+				CONFIG::DEBUG { this.Debug("Event: httpError: Translating status code " + event.status + " to uploadSuccess"); }
 
 				var serverDataEvent:DataEvent = new DataEvent(DataEvent.UPLOAD_COMPLETE_DATA, event.bubbles, event.cancelable, "");
 				this.ServerData_Handler(serverDataEvent);
@@ -648,7 +648,7 @@ package {
 				this.upload_errors++;
 				this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
 
-				CONFIG::DEBUG { this.Debug(("Event: uploadError: HTTP ERROR : File ID: " + this.current_file_item.id + ". HTTP Status: " + event.status + ".")); }
+				CONFIG::DEBUG { this.Debug("Event: uploadError: HTTP ERROR : File ID: " + this.current_file_item.id + ". HTTP Status: " + event.status + "."); }
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_HTTP_ERROR, this.current_file_item.ToJavaScriptObject(), event.status.toString());
 				this.UploadComplete(true); 	// An IO Error is also called so we don't want to complete the upload yet.
 			}
@@ -667,7 +667,7 @@ package {
 				this.upload_errors++;
 				this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
 
-				CONFIG::DEBUG { this.Debug(("Event: uploadError : IO Error : File ID: " + this.current_file_item.id + ". IO Error: " + event.text)); }
+				CONFIG::DEBUG { this.Debug("Event: uploadError : IO Error : File ID: " + this.current_file_item.id + ". IO Error: " + event.text); }
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_IO_ERROR, this.current_file_item.ToJavaScriptObject(), event.text);
 			}
 
@@ -678,7 +678,7 @@ package {
 			this.upload_errors++;
 			this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
 
-			CONFIG::DEBUG { this.Debug(("Event: uploadError : Security Error : File Number: " + this.current_file_item.id + ". Error text: " + event.text)); }
+			CONFIG::DEBUG { this.Debug("Event: uploadError : Security Error : File Number: " + this.current_file_item.id + ". Error text: " + event.text); }
 			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_SECURITY_ERROR, this.current_file_item.ToJavaScriptObject(), event.text);
 
 			this.UploadComplete(true);
@@ -694,7 +694,7 @@ package {
 		}
 		
 		private function Select_Handler(file_reference_list:Array):void {
-			CONFIG::DEBUG { this.Debug(("Select Handler: Received the files selected from the dialog. Processing the file list...")); }
+			CONFIG::DEBUG { this.Debug("Select Handler: Received the files selected from the dialog. Processing the file list..."); }
 
 			var num_files_queued:Number = 0;
 			
@@ -716,7 +716,7 @@ package {
 			
 			// Check if the number of files selected is greater than the number allowed to queue up.
 			if (queue_slots_remaining < file_reference_list.length) {
-				CONFIG::DEBUG { this.Debug(("Event: fileQueueError : Selected Files (" + file_reference_list.length + ") exceeds remaining Queue size (" + queue_slots_remaining + ").")); }
+				CONFIG::DEBUG { this.Debug("Event: fileQueueError : Selected Files (" + file_reference_list.length + ") exceeds remaining Queue size (" + queue_slots_remaining + ")."); }
 				ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_QUEUE_LIMIT_EXCEEDED, null, queue_slots_remaining.toString());
 			} else {
 				// Process each selected file
@@ -737,41 +737,41 @@ package {
 							this.file_queue.push(file_item);
 							this.queued_uploads++;
 							num_files_queued++;
-							CONFIG::DEBUG { this.Debug(("Event: fileQueued : File ID: " + file_item.id)); }
+							CONFIG::DEBUG { this.Debug("Event: fileQueued : File ID: " + file_item.id); }
 							ExternalCall.FileQueued(this.fileQueued_Callback, file_item.ToJavaScriptObject());
 						}
 						else if (!is_valid_filetype) {
 							//file_item.file_reference = null; 	// Cleanup the object
 							file_item.file_status = FileItem.FILE_STATUS_ERROR;
 							this.queue_errors++;
-							CONFIG::DEBUG { this.Debug(("Event: fileQueueError : File not of a valid type.")); }
+							CONFIG::DEBUG { this.Debug("Event: fileQueueError : File not of a valid type."); }
 							ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_INVALID_FILETYPE, file_item.ToJavaScriptObject(), "File is not an allowed file type.");
 						}
 						else if (size_result == this.SIZE_TOO_BIG) {
 							//file_item.file_reference = null; 	// Cleanup the object
 							file_item.file_status = FileItem.FILE_STATUS_ERROR;
 							this.queue_errors++;
-							CONFIG::DEBUG { this.Debug(("Event: fileQueueError : File exceeds size limit.")); }
+							CONFIG::DEBUG { this.Debug("Event: fileQueueError : File exceeds size limit."); }
 							ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT, file_item.ToJavaScriptObject(), "File size exceeds allowed limit.");
 						}
 						else if (size_result == this.SIZE_ZERO_BYTE) {
 							file_item.file_reference = null; 	// Cleanup the object
 							file_item.file_status = FileItem.FILE_STATUS_ERROR;
 							this.queue_errors++;
-							CONFIG::DEBUG { this.Debug(("Event: fileQueueError : File is zero bytes.")); }
+							CONFIG::DEBUG { this.Debug("Event: fileQueueError : File is zero bytes."); }
 							ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes and cannot be uploaded.");
 						}
 					} else {
 						file_item.file_reference = null; 	// Cleanup the object
 						file_item.file_status = FileItem.FILE_STATUS_ERROR;
 						this.queue_errors++;
-						CONFIG::DEBUG { this.Debug(("Event: fileQueueError : File is zero bytes or FileReference is invalid.")); }
+						CONFIG::DEBUG { this.Debug("Event: fileQueueError : File is zero bytes or FileReference is invalid."); }
 						ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes or cannot be accessed and cannot be uploaded.");
 					}
 				}
 			}
 			
-			CONFIG::DEBUG { this.Debug(("Event: fileDialogComplete : Finished processing selected files. Files selected: " + file_reference_list.length + ". Files Queued: " + num_files_queued)); }
+			CONFIG::DEBUG { this.Debug("Event: fileDialogComplete : Finished processing selected files. Files selected: " + file_reference_list.length + ". Files Queued: " + num_files_queued); }
 			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, file_reference_list.length, num_files_queued, this.queued_uploads);
 		}
 
@@ -792,13 +792,13 @@ package {
 			if (this.fileTypes.length > 0) allowed_file_types = this.fileTypes;
 			if (this.fileTypesDescription.length > 0)  allowed_file_types_description = this.fileTypesDescription;
 
-			CONFIG::DEBUG { this.Debug(("Event: fileDialogStart : Browsing files. Single Select. Allowed file types: " + allowed_file_types)); }
+			CONFIG::DEBUG { this.Debug("Event: fileDialogStart : Browsing files. Single Select. Allowed file types: " + allowed_file_types); }
 			ExternalCall.Simple(this.fileDialogStart_Callback);
 
 			try {
 				this.fileBrowserOne.browse([new FileFilter(allowed_file_types_description, allowed_file_types)]);
 			} catch (ex:Error) {
-				CONFIG::DEBUG { this.Debug(("Exception: " + ex.toString())); }
+				CONFIG::DEBUG { this.Debug("Exception: " + ex.toString()); }
 			}
 		}
 		
@@ -810,13 +810,13 @@ package {
 			if (this.fileTypes.length > 0) allowed_file_types = this.fileTypes;
 			if (this.fileTypesDescription.length > 0)  allowed_file_types_description = this.fileTypesDescription;
 
-			CONFIG::DEBUG { this.Debug(("Event: fileDialogStart : Browsing files. Multi Select. Allowed file types: " + allowed_file_types)); }
+			CONFIG::DEBUG { this.Debug("Event: fileDialogStart : Browsing files. Multi Select. Allowed file types: " + allowed_file_types); }
 			ExternalCall.Simple(this.fileDialogStart_Callback);
 
 			try {
 				this.fileBrowserMany.browse([new FileFilter(allowed_file_types_description, allowed_file_types)]);
 			} catch (ex:Error) {
-				CONFIG::DEBUG { this.Debug(("Exception: " + ex.toString())); }
+				CONFIG::DEBUG { this.Debug("Exception: " + ex.toString()); }
 			}
 		}
 
@@ -843,14 +843,14 @@ package {
 				var js_object:Object = this.current_file_item.ToJavaScriptObject();
 				this.current_file_item = null;
 				
-				CONFIG::DEBUG { this.Debug(("Event: uploadError: upload stopped. File ID: " + js_object.ID)); }
+				CONFIG::DEBUG { this.Debug("Event: uploadError: upload stopped. File ID: " + js_object.ID); }
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_STOPPED, js_object, "Upload Stopped");
-				CONFIG::DEBUG { this.Debug(("Event: uploadComplete. File ID: " + js_object.ID)); }
+				CONFIG::DEBUG { this.Debug("Event: uploadComplete. File ID: " + js_object.ID); }
 				ExternalCall.UploadComplete(this.uploadComplete_Callback, js_object);
 				
-				CONFIG::DEBUG { this.Debug(("StopUpload(): upload stopped.")); }
+				CONFIG::DEBUG { this.Debug("StopUpload(): upload stopped."); }
 			} else {
-				CONFIG::DEBUG { this.Debug(("StopUpload(): No file is currently uploading. Nothing to do.")); }
+				CONFIG::DEBUG { this.Debug("StopUpload(): No file is currently uploading. Nothing to do."); }
 			}
 		}
 
@@ -878,10 +878,10 @@ package {
 				this.upload_cancelled++;
 				
 				if (triggerErrorEvent) {
-					CONFIG::DEBUG { this.Debug(("Event: uploadError: File ID: " + this.current_file_item.id + ". Cancelled current upload")); }
+					CONFIG::DEBUG { this.Debug("Event: uploadError: File ID: " + this.current_file_item.id + ". Cancelled current upload"); }
 					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, this.current_file_item.ToJavaScriptObject(), "File Upload Cancelled.");
 				} else {
-					CONFIG::DEBUG { this.Debug(("Event: cancelUpload: File ID: " + this.current_file_item.id + ". Cancelled current upload. Suppressed uploadError event.")); }
+					CONFIG::DEBUG { this.Debug("Event: cancelUpload: File ID: " + this.current_file_item.id + ". Cancelled current upload. Suppressed uploadError event."); }
 				}
 				
 				this.UploadComplete(false);
@@ -910,10 +910,10 @@ package {
 
 					
 					if (triggerErrorEvent) {
-						CONFIG::DEBUG { this.Debug(("Event: uploadError : " + file_item.id + ". Cancelled queued upload")); }
+						CONFIG::DEBUG { this.Debug("Event: uploadError : " + file_item.id + ". Cancelled queued upload"); }
 						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
 					} else {
-						CONFIG::DEBUG { this.Debug(("Event: cancelUpload: File ID: " + file_item.id + ". Cancelled current upload. Suppressed uploadError event.")); }
+						CONFIG::DEBUG { this.Debug("Event: cancelUpload: File ID: " + file_item.id + ". Cancelled current upload. Suppressed uploadError event."); }
 					}
 
 					// Get rid of the file object
@@ -950,10 +950,10 @@ package {
 					file_item.upload_type = FileItem.UPLOAD_TYPE_NORMAL;
 
 					if (triggerErrorEvent) {
-						CONFIG::DEBUG { this.Debug(("Event: uploadError : " + file_item.id + ". Cancelled queued upload")); }
+						CONFIG::DEBUG { this.Debug("Event: uploadError : " + file_item.id + ". Cancelled queued upload"); }
 						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
 					} else {
-						CONFIG::DEBUG { this.Debug(("Event: cancelUpload: File ID: " + file_item.id + ". Cancelled current upload. Suppressed uploadError event.")); }
+						CONFIG::DEBUG { this.Debug("Event: cancelUpload: File ID: " + file_item.id + ". Cancelled current upload. Suppressed uploadError event."); }
 					}
 
 					// Get rid of the file object
@@ -1164,7 +1164,7 @@ package {
 						this.httpSuccess.push(Number(http_status_string));
 					} catch (ex:Object) {
 						// Ignore errors
-						CONFIG::DEBUG { this.Debug(("Could not add HTTP Success code: " + http_status_string)); }
+						CONFIG::DEBUG { this.Debug("Could not add HTTP Success code: " + http_status_string); }
 					}
 				}
 			}
@@ -1172,10 +1172,10 @@ package {
 				for each (var http_status:* in http_status_codes) 
 				{
 					try {
-						CONFIG::DEBUG { this.Debug(("adding: " + http_status)); }
+						CONFIG::DEBUG { this.Debug("adding: " + http_status); }
 						this.httpSuccess.push(Number(http_status));
 					} catch (ex:Object) {
-						CONFIG::DEBUG { this.Debug(("Could not add HTTP Success code: " + http_status)); }
+						CONFIG::DEBUG { this.Debug("Could not add HTTP Success code: " + http_status); }
 					}
 				}
 			}
@@ -1205,7 +1205,7 @@ package {
 		}
 		
 		private function ButtonImageLoaded(e:Event):void {
-			CONFIG::DEBUG { this.Debug(("Button Image Loaded")); }
+			CONFIG::DEBUG { this.Debug("Button Image Loaded"); }
 			this.HandleStageResize(null);
 		}
 
@@ -1292,15 +1292,15 @@ package {
 		private function StartUpload(file_id:String = "", resizeSettings:Object = null):void {
 			// Only upload a file uploads are being processed.
 			if (this.current_file_item != null) {
-				CONFIG::DEBUG { this.Debug(("StartUpload(): Upload already in progress. Not starting another upload.")); }
+				CONFIG::DEBUG { this.Debug("StartUpload(): Upload already in progress. Not starting another upload."); }
 				return;
 			}
 
-			CONFIG::DEBUG { this.Debug(("StartUpload: " + (file_id ? "File ID: " + file_id : "First file in queue"))); }
+			CONFIG::DEBUG { this.Debug("StartUpload: " + (file_id ? "File ID: " + file_id : "First file in queue")); }
 
 			// Check the upload limit
 			if (this.successful_uploads >= this.fileUploadLimit && this.fileUploadLimit != 0) {
-				CONFIG::DEBUG { this.Debug(("Event: uploadError : Upload limit reached. No more files can be uploaded.")); }
+				CONFIG::DEBUG { this.Debug("Event: uploadError : Upload limit reached. No more files can be uploaded."); }
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED, null, "The upload limit has been reached.");
 				this.current_file_item = null;
 				return;
@@ -1321,7 +1321,7 @@ package {
 					this.current_file_item = FileItem(this.file_queue[file_index]);
 					this.file_queue.splice([file_index], 1);
 				} else {
-					CONFIG::DEBUG { this.Debug(("Event: uploadError : File ID not found in queue: " + file_id)); }
+					CONFIG::DEBUG { this.Debug("Event: uploadError : File ID not found in queue: " + file_id); }
 					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_SPECIFIED_FILE_ID_NOT_FOUND, null, "File ID not found in the queue.");
 				}
 			}
@@ -1329,22 +1329,22 @@ package {
 
 			if (this.current_file_item != null) {
 				// Trigger the uploadStart event which will call ReturnUploadStart to begin the actual upload
-				CONFIG::DEBUG { this.Debug(("Event: uploadStart : File ID: " + this.current_file_item.id)); }
+				CONFIG::DEBUG { this.Debug("Event: uploadStart : File ID: " + this.current_file_item.id); }
 				
 					this.current_file_item.file_status = FileItem.FILE_STATUS_IN_PROGRESS;
 				if (resizeSettings != null) {
-					CONFIG::DEBUG { this.Debug(("StartUpload(): Uploading Type: Resized Image.")); }
+					CONFIG::DEBUG { this.Debug("StartUpload(): Uploading Type: Resized Image."); }
 					this.current_file_item.upload_type = FileItem.UPLOAD_TYPE_RESIZE;
 					this.PrepareResizedImage(resizeSettings);
 				} else {
-					CONFIG::DEBUG { this.Debug(("StartUpload(): Upload Type: Normal.")); }
+					CONFIG::DEBUG { this.Debug("StartUpload(): Upload Type: Normal."); }
 					this.current_file_item.upload_type = FileItem.UPLOAD_TYPE_NORMAL;
 					ExternalCall.UploadStart(this.uploadStart_Callback, this.current_file_item.ToJavaScriptObject());
 				}
 			}
 			// Otherwise we've would have looped through all the FileItems. This means the queue is empty)
 			else {
-				CONFIG::DEBUG { this.Debug(("StartUpload(): No files found in the queue.")); }
+				CONFIG::DEBUG { this.Debug("StartUpload(): No files found in the queue."); }
 			}
 		}
 		
@@ -1354,8 +1354,8 @@ package {
 				resizer.addEventListener(ImageResizerEvent.COMPLETE, this.PrepareResizedImageCompleteHandler);
 				resizer.addEventListener(ErrorEvent.ERROR, this.PrepareResizedImageErrorHandler);
 				
-				CONFIG::DEBUG { this.Debug(("PrepareThumbnail(): Beginning image resizing.")); }
-				CONFIG::DEBUG { this.Debug(("Settings: Width: " + resizeSettings["width"] + ", Height: " + resizeSettings["height"] + ", Encoding: " + (resizeSettings["encoding"] == this.ENCODER_PNG ? "PNG" : "JPEG") + ", Quality: " + resizeSettings["quality"] + ".")); }
+				CONFIG::DEBUG { this.Debug("PrepareThumbnail(): Beginning image resizing."); }
+				CONFIG::DEBUG { this.Debug("Settings: Width: " + resizeSettings["width"] + ", Height: " + resizeSettings["height"] + ", Encoding: " + (resizeSettings["encoding"] == this.ENCODER_PNG ? "PNG" : "JPEG") + ", Quality: " + resizeSettings["quality"] + "."); }
 				ExternalCall.UploadResizeStart(this.uploadResizeStart_Callback, this.current_file_item.ToJavaScriptObject(), resizeSettings);
 				resizer.ResizeImage();
 			
@@ -1372,7 +1372,7 @@ package {
 		private function PrepareResizedImageCompleteHandler(event:ImageResizerEvent):void {
 			event.target.removeEventListener(ImageResizerEvent.COMPLETE, this.PrepareResizedImageCompleteHandler);
 			event.target.removeEventListener(ErrorEvent.ERROR, this.PrepareResizedImageErrorHandler);
-			CONFIG::DEBUG { this.Debug(("PrepareResizedImageCompleteHandler(): Finished resizing. Initializing MultipartURLLoader.")); }
+			CONFIG::DEBUG { this.Debug("PrepareResizedImageCompleteHandler(): Finished resizing. Initializing MultipartURLLoader."); }
 			
 			if (this.current_file_item != null) {
 				var extension:String = event.encoding == this.ENCODER_PNG ? ".png" : ".jpg";
@@ -1389,13 +1389,13 @@ package {
 			event.target.removeEventListener(ImageResizerEvent.COMPLETE, this.PrepareResizedImageCompleteHandler);
 			event.target.removeEventListener(ErrorEvent.ERROR, this.PrepareResizedImageErrorHandler);
 
-			CONFIG::DEBUG { this.Debug(("PrepareResizedImageErrorHandler(): Error resizing image: " + event.text)); }
+			CONFIG::DEBUG { this.Debug("PrepareResizedImageErrorHandler(): Error resizing image: " + event.text); }
 
 			if (this.current_file_item.file_status != FileItem.FILE_STATUS_ERROR) {
 				this.upload_errors++;
 				this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
 
-				CONFIG::DEBUG { this.Debug(("Event: uploadError : Resize Error : File ID: " + this.current_file_item.id + ". Error: " + event.text)); }
+				CONFIG::DEBUG { this.Debug("Event: uploadError : Resize Error : File ID: " + this.current_file_item.id + ". Error: " + event.text); }
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_RESIZE, this.current_file_item.ToJavaScriptObject(), "Error generating resized image. " + event.text);
 			}
 
@@ -1406,7 +1406,7 @@ package {
 		// the function we do a return function call so we can use the setTimeout work-around for Flash/JS circular calls.
 		private function ReturnUploadStart(start_upload:Boolean):void {
 			if (this.current_file_item == null) {
-				CONFIG::DEBUG { this.Debug(("ReturnUploadStart called but no file was prepped for uploading. The file may have been cancelled or stopped.")); }
+				CONFIG::DEBUG { this.Debug("ReturnUploadStart called but no file was prepped for uploading. The file may have been cancelled or stopped."); }
 				return;
 			}
 			
@@ -1421,7 +1421,7 @@ package {
 					var request:URLRequest = this.BuildRequest();
 					
 					if (this.uploadURL.length == 0) {
-						CONFIG::DEBUG { this.Debug(("Event: uploadError : IO Error : File ID: " + this.current_file_item.id + ". Upload URL string is empty.")); }
+						CONFIG::DEBUG { this.Debug("Event: uploadError : IO Error : File ID: " + this.current_file_item.id + ". Upload URL string is empty."); }
 
 						// Remove the event handlers
 						this.removeEventListeners(this.current_file_item);
@@ -1436,21 +1436,21 @@ package {
 						this.current_file_item.file_status = FileItem.FILE_STATUS_IN_PROGRESS;
 						
 						if (this.current_file_item.upload_type === FileItem.UPLOAD_TYPE_NORMAL) {
-							CONFIG::DEBUG { this.Debug(("ReturnUploadStart(): File accepted by startUpload event and readied for standard upload.  Starting upload to " + request.url + " for File ID: " + this.current_file_item.id)); }
+							CONFIG::DEBUG { this.Debug("ReturnUploadStart(): File accepted by startUpload event and readied for standard upload.  Starting upload to " + request.url + " for File ID: " + this.current_file_item.id); }
 							this.current_file_item.file_reference.upload(request, this.filePostName, false);
 						} else {
-							CONFIG::DEBUG { this.Debug(("ReturnUploadStart(): File accepted by startUpload event and readied for resized upload.  Starting upload to " + request.url + " for File ID: " + this.current_file_item.id)); }
+							CONFIG::DEBUG { this.Debug("ReturnUploadStart(): File accepted by startUpload event and readied for resized upload.  Starting upload to " + request.url + " for File ID: " + this.current_file_item.id); }
 							this.current_file_item.resized_uploader.upload(request, this.filePostName);
 						}
 					}
 				} catch (ex:Error) {
-					CONFIG::DEBUG { this.Debug(("ReturnUploadStart: Exception occurred: " + message)); }
+					CONFIG::DEBUG { this.Debug("ReturnUploadStart: Exception occurred: " + message); }
 
 					this.upload_errors++;
 					this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
 
 					var message:String = ex.errorID + "\n" + ex.name + "\n" + ex.message + "\n" + ex.getStackTrace();
-					CONFIG::DEBUG { this.Debug(("Event: uploadError(): Upload Failed. Exception occurred: " + message)); }
+					CONFIG::DEBUG { this.Debug("Event: uploadError(): Upload Failed. Exception occurred: " + message); }
 					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), message);
 					
 					this.UploadComplete(true);
@@ -1469,9 +1469,9 @@ package {
 				this.file_queue.unshift(this.current_file_item);
 				this.current_file_item = null;
 				
-				CONFIG::DEBUG { this.Debug(("Event: uploadError : Call to uploadStart returned false. Not uploading the file.")); }
+				CONFIG::DEBUG { this.Debug("Event: uploadError : Call to uploadStart returned false. Not uploading the file."); }
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_VALIDATION_FAILED, js_object, "Call to uploadStart return false. Not uploading file.");
-				CONFIG::DEBUG { this.Debug(("Event: uploadComplete : Call to uploadStart returned false. Not uploading the file.")); }
+				CONFIG::DEBUG { this.Debug("Event: uploadComplete : Call to uploadStart returned false. Not uploading the file."); }
 				ExternalCall.UploadComplete(this.uploadComplete_Callback, js_object);
 			}
 		}
@@ -1497,7 +1497,7 @@ package {
 
 			this.current_file_item = null;
 			
-			CONFIG::DEBUG { this.Debug(("Event: uploadComplete : Upload cycle complete.")); }
+			CONFIG::DEBUG { this.Debug("Event: uploadComplete : Upload cycle complete."); }
 			ExternalCall.UploadComplete(this.uploadComplete_Callback, jsFileObj);
 		}
 
@@ -1552,14 +1552,14 @@ package {
 			if (this.useQueryString) {
 				var pairs:Array = new Array();
 				for (key in this.uploadPostObject) {
-					CONFIG::DEBUG { this.Debug(("Global URL Item: " + key + "=" + this.uploadPostObject[key])); }
+					CONFIG::DEBUG { this.Debug("Global URL Item: " + key + "=" + this.uploadPostObject[key]); }
 					if (this.uploadPostObject.hasOwnProperty(key)) {
 						pairs.push(encodeURIComponent(key) + "=" + encodeURIComponent(this.uploadPostObject[key]));
 					}
 				}
 
 				for (key in file_post) {
-					CONFIG::DEBUG { this.Debug(("File Post Item: " + key + "=" + file_post[key])); }
+					CONFIG::DEBUG { this.Debug("File Post Item: " + key + "=" + file_post[key]); }
 					if (file_post.hasOwnProperty(key)) {
 						pairs.push(encodeURIComponent(key) + "=" + encodeURIComponent(file_post[key]));
 					}
@@ -1571,14 +1571,14 @@ package {
 				var key:String;
 				var post:URLVariables = new URLVariables();
 				for (key in this.uploadPostObject) {
-					CONFIG::DEBUG { this.Debug(("Global Post Item: " + key + "=" + this.uploadPostObject[key])); }
+					CONFIG::DEBUG { this.Debug("Global Post Item: " + key + "=" + this.uploadPostObject[key]); }
 					if (this.uploadPostObject.hasOwnProperty(key)) {
 						post[key] = this.uploadPostObject[key];
 					}
 				}
 
 				for (key in file_post) {
-					CONFIG::DEBUG { this.Debug(("File Post Item: " + key + "=" + file_post[key])); }
+					CONFIG::DEBUG { this.Debug("File Post Item: " + key + "=" + file_post[key]); }
 					if (file_post.hasOwnProperty(key)) {
 						post[key] = file_post[key];
 					}
@@ -1628,7 +1628,7 @@ package {
 			}
 			debug_info += "----- END SWF DEBUG OUTPUT ----\n";
 
-			CONFIG::DEBUG { this.Debug((debug_info)); }
+			CONFIG::DEBUG { this.Debug(debug_info); }
 		}
 
 		private function FindIndexInFileQueue(file_id:String):Number {
