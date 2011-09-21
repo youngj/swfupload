@@ -33,6 +33,9 @@ package {
 	import flash.utils.ByteArray;
 	import flash.utils.Timer;
 
+ 	import flash.system.LoaderContext;
+ 	import flash.system.ApplicationDomain;
+		
 	import FileItem;
 	import ExternalCall;
 	import ImageResizer;
@@ -71,6 +74,8 @@ package {
 		private var sizeTimer:Timer;
 		private var hasCalledFlashReady:Boolean = false;
 		
+		private var hasLoadedJpegEncoder:Boolean = false;		
+		
 		// Callbacks
 		private var flashReady_Callback:String;
 		private var fileDialogStart_Callback:String;
@@ -95,6 +100,7 @@ package {
 		// Values passed in from the HTML
 		private var movieName:String;
 		private var uploadURL:String;
+		private var jpegEncoderURL:String;
 		private var filePostName:String;
 		private var uploadPostObject:Object;
 		private var fileTypes:String;
@@ -152,7 +158,7 @@ package {
 		private var ERROR_CODE_FILE_CANCELLED:Number				= -280;
 		private var ERROR_CODE_UPLOAD_STOPPED:Number				= -290;
 		private var ERROR_CODE_RESIZE:Number						= -300;
-
+		private var ERROR_CODE_JPEG_ENCODER_LOAD:Number 			= -310;
 		
 		// Button Actions
 		private var BUTTON_ACTION_SELECT_FILE:Number                = -100;
@@ -302,6 +308,7 @@ package {
 			
 			// Get the Flash Vars
 			this.uploadURL = decodeURIComponent(root.loaderInfo.parameters.uploadURL);
+			this.jpegEncoderURL = decodeURIComponent(root.loaderInfo.parameters.jpegEncoderURL);
 			this.filePostName = decodeURIComponent(root.loaderInfo.parameters.filePostName);
 			this.fileTypes = decodeURIComponent(root.loaderInfo.parameters.fileTypes);
 			this.fileTypesDescription = decodeURIComponent(root.loaderInfo.parameters.fileTypesDescription) + " (" + this.fileTypes + ")";
@@ -1335,7 +1342,15 @@ package {
 				if (resizeSettings != null) {
 					CONFIG::DEBUG { this.Debug("StartUpload(): Uploading Type: Resized Image."); }
 					this.current_file_item.upload_type = FileItem.UPLOAD_TYPE_RESIZE;
-					this.PrepareResizedImage(resizeSettings);
+
+					if (!this.hasLoadedJpegEncoder && resizeSettings["encoding"] != ImageResizer.PNGENCODE)
+					{
+						this.LoadJpegEncoder(resizeSettings);						
+					}
+					else
+					{
+						this.PrepareResizedImage(resizeSettings);
+					}
 				} else {
 					CONFIG::DEBUG { this.Debug("StartUpload(): Upload Type: Normal."); }
 					this.current_file_item.upload_type = FileItem.UPLOAD_TYPE_NORMAL;
@@ -1347,10 +1362,39 @@ package {
 				CONFIG::DEBUG { this.Debug("StartUpload(): No files found in the queue."); }
 			}
 		}
+
+		private function LoadJpegEncoder(resizeSettings:Object):void
+		{
+			this.hasLoadedJpegEncoder = true;
+			var jpegEncoderUrl:String = this.jpegEncoderURL;
+			var request:URLRequest = new URLRequest(jpegEncoderURL);			
+			var jloader:Loader = new Loader();
+			var self:SWFUpload = this;
+			
+			jloader.contentLoaderInfo.addEventListener(flash.events.Event.COMPLETE, function ():void {
+				self.PrepareResizedImage(resizeSettings);
+			});
+			jloader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, function (event:HTTPStatusEvent):void {
+				if (event.status != 200)
+				{                               
+					CONFIG::DEBUG { self.Debug("Error loading "+jpegEncoderUrl+"!"); }
+					ExternalCall.UploadError(self.uploadError_Callback, self.ERROR_CODE_JPEG_ENCODER_LOAD, null, 
+						"Error loading "+jpegEncoderUrl+".");
+				}
+			});
+
+			jloader.load(request, new LoaderContext(false, ApplicationDomain.currentDomain));
+			addChild(jloader);
+		}
 		
 		private function PrepareResizedImage(resizeSettings:Object):void {
 			try {
-				var resizer:ImageResizer = new ImageResizer(this.current_file_item, resizeSettings["width"], resizeSettings["height"], resizeSettings["encoding"], resizeSettings["quality"], resizeSettings["allowEnlarging"]);
+				var resizer:ImageResizer = new ImageResizer(this.current_file_item, 
+					resizeSettings["width"], 
+					resizeSettings["height"], 
+					resizeSettings["encoding"], 
+					resizeSettings["quality"], 
+					resizeSettings["allowEnlarging"]);
 				resizer.addEventListener(ImageResizerEvent.COMPLETE, this.PrepareResizedImageCompleteHandler);
 				resizer.addEventListener(ErrorEvent.ERROR, this.PrepareResizedImageErrorHandler);
 				
