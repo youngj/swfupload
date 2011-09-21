@@ -1,0 +1,20 @@
+This is a fork of SWFUpload v2.5.0 beta3.2 from
+http://code.google.com/p/swfupload/source/browse/swfupload/branches/SWFUpload+Resize/?r=915
+
+It contains the following changes:
+
+* splits the Alchemy JPEG encoder library into a separate SWF that is dynamically loaded
+only when needed, in order to reduce the size of swfupload.swf dramatically.
+see http://code.google.com/p/swfupload/issues/detail?id=258
+
+An corresponding setting jpegencoder_url has been added to the JavaScript object.
+
+* conditional compilation options to strip out debugging information, resulting in 
+additional decrease in size of swfupload.swf
+
+* works around bug in IE: http://code.google.com/p/swfupload/issues/detail?id=257
+
+See https://github.com/youngj/swfupload/downloads for the compiled SWF and JavaScript 
+files to include in your project.
+
+Modifications (and original source code) released under MIT license.
