@@ -40,7 +40,7 @@
     <option linkReport="" />
     <option loadExterns="" />
     <option staticLinkRSL="True" />
-    <option additional="-define+=CONFIG::DEBUG,false" />
+    <option additional="-define+=CONFIG::DEBUG,false&#xA;-define+=CONFIG::PNGENCODER,false&#xA;-link-report=obj/link-report.xml" />
     <option compilerConstants="" />
     <option minorVersion="" />
   </build>

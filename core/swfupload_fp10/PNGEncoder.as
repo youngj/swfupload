@@ -2,7 +2,7 @@
  * http://code.google.com/p/as3corelib/ --  New BSD License
  * Modified to work asynchronously
  * */
-
+ 
 package
 {
 	import flash.utils.ByteArray;
@@ -12,7 +12,11 @@ package
 	import flash.events.ErrorEvent;
 	import flash.utils.setTimeout;
 	
+	
 	public class PNGEncoder extends EventDispatcher {
+	
+		CONFIG::PNGENCODER {
+		
 		public static const TYPE_NORMAL:uint = 0;
 		public static const TYPE_SUBFILTER:uint = 1;
 		
@@ -291,5 +295,6 @@ package
 
 			png.writeUnsignedInt(c);
 	    }
+	}	
 	}
 }

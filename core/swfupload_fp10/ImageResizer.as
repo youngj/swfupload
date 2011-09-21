@@ -147,14 +147,21 @@ package
 					resizedBmp = new BitmapData(this.newWidth, this.newHeight, true, 0x000000);
 					resizedBmp.draw(bmp, matrix, null, null, null, true);
 					
-					bmp.dispose();
+					bmp.dispose();										
 					
-					if (this.encoder == ImageResizer.PNGENCODE) {
-						var pngEncoder:PNGEncoder = new PNGEncoder(PNGEncoder.TYPE_SUBFILTER, 1);
-						pngEncoder.addEventListener(EncodeCompleteEvent.COMPLETE, this.EncodeCompleteHandler);
-						pngEncoder.addEventListener(ErrorEvent.ERROR, this.EncodeErrorHandler);
-						pngEncoder.encode(resizedBmp);
-					} else {
+					if (CONFIG::PNGENCODER && this.encoder == ImageResizer.PNGENCODE) {
+						var pngEncoder:PNGEncoder; // put this here to avoid compile warning for empty block
+						
+						CONFIG::PNGENCODER 
+						{
+							pngEncoder = new PNGEncoder(PNGEncoder.TYPE_SUBFILTER, 1);
+							pngEncoder.addEventListener(EncodeCompleteEvent.COMPLETE, this.EncodeCompleteHandler);
+							pngEncoder.addEventListener(ErrorEvent.ERROR, this.EncodeErrorHandler);
+							pngEncoder.encode(resizedBmp);
+						}						
+					}
+					else 
+					{
 						this.ba = resizedBmp.getPixels(resizedBmp.rect);
 						this.ba.position = 0;
 						this.baOut = new ByteArray();
