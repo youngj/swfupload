@@ -428,13 +428,17 @@ package {
 				this.SetButtonCursor(this.BUTTON_CURSOR_ARROW);
 			}
 
-			this.SetupExternalInterface();
-			
-			CONFIG::DEBUG { this.Debug("SWFUpload Init Complete"); }
-			CONFIG::DEBUG { this.PrintDebugInfo(); }
-
-			ExternalCall.Simple(this.flashReady_Callback);
-			this.hasCalledFlashReady = true;
+			// set up external interface after short timeout to workaround IE bug
+			var timer:Timer = new Timer(100, 1);
+			timer.addEventListener(TimerEvent.TIMER, function():void {
+				
+				self.SetupExternalInterface();              
+				CONFIG::DEBUG { self.Debug("SWFUpload Init Complete"); }                
+				CONFIG::DEBUG { self.PrintDebugInfo(); }
+				ExternalCall.Simple(self.flashReady_Callback);
+				self.hasCalledFlashReady = true;                
+			});
+			timer.start();			
 		}
 
 		private function HandleStageResize(e:Event):void {
