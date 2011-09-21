@@ -1,14 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<project>
+<project version="2">
   <!-- Output SWF options -->
   <output>
-    <movie disabled="False" />
+    <movie outputType="Application" />
     <movie input="" />
-    <movie path="swfupload.swf" />
+    <movie path="bin/swfupload.swf" />
     <movie fps="15" />
     <movie width="300" />
     <movie height="300" />
     <movie version="10" />
+    <movie minorVersion="0" />
+    <movie platform="Flash Player" />
     <movie background="#FFFFFF" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
@@ -21,10 +23,13 @@
     <option allowSourcePathOverlap="False" />
     <option benchmark="False" />
     <option es="False" />
+    <option locale="" />
     <option loadConfig="" />
     <option optimize="True" />
+    <option omitTraces="True" />
     <option showActionScriptWarnings="True" />
     <option showBindingWarnings="True" />
+    <option showInvalidCSS="True" />
     <option showDeprecationWarnings="True" />
     <option showUnusedTypeSelectorWarnings="True" />
     <option strict="True" />
@@ -34,8 +39,10 @@
     <option verboseStackTraces="False" />
     <option linkReport="" />
     <option loadExterns="" />
-    <option additional="" />
-    <option customSDK="" />
+    <option staticLinkRSL="True" />
+    <option additional="-define+=CONFIG::DEBUG,false" />
+    <option compilerConstants="" />
+    <option minorVersion="" />
   </build>
   <!-- SWC Include Libraries -->
   <includeLibraries>
@@ -78,4 +85,6 @@
     <option showHiddenPaths="False" />
     <option testMovie="NewWindow" />
   </options>
+  <!-- Plugin storage -->
+  <storage />
 </project>
